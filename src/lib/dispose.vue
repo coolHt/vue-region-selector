@@ -13,6 +13,12 @@ export default {
   },
   created(){
     //过滤省市区的数据
+    Data.forEach((region, index) => { //获取省的数据
+      if(region.data.slice(-4) == '0000'){
+        this.province.push(region);
+      }
+    })
+    console.log(this.province);
   }
 }
 </script>
