@@ -8,7 +8,7 @@ for(let i = 0; i < datas.length; i++){
   let splitData = datas[i].split(' ');
   saveDatas.push({
     name: splitData[1],
-    data: splitData[0]
+    code: splitData[0]
   });
 }
 datas = saveDatas;
