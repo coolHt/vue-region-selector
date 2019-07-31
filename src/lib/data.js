@@ -4,6 +4,7 @@ let datas =
 //,一组
 datas = datas.split(',');
 let saveDatas = [];
+//数据格式化
 for (let i = 0; i < datas.length; i++) {
   let splitData = datas[i].split(' ');
   saveDatas.push({
@@ -11,10 +12,9 @@ for (let i = 0; i < datas.length; i++) {
     code: splitData[0]
   });
 }
-let province = [],
-  city = [],
-  area = [];
+let province = [],city = [],area = [];
 saveDatas.forEach((region) => {
+  //分别筛选出省/市/区的数据
   if (region.code.slice(-4) == '0000') { //省
     province.push(region);
   } else if (region.code.slice(-4) != '0000' && region.code.slice(-2) == '00') { //获取市的数据
