@@ -8,15 +8,21 @@
         <!--省选择-->
         <div class="xz_province">
           <ul>
-            <!-- <li class="choosedProvince" ref="province_btn" @click="chooseProvince(-1)">热门城市</li> -->
-            <li v-for="(p,index) in domain" :key="p.province.code" @click="chooseProvince(index,p)" ref="province_btn">
+            <li v-for="(p,index) in domain" :key="p.province.code" @click="chooseProvince(index,p)" ref="province_btn"
+              :class="index == 0?'choosedProvince':''">
               {{p.province.name}}
             </li>
           </ul>
         </div>
         <!--市-->
         <div class="xz_city">
-          <span class="single_city" v-for="city in citys" :key="city.code">{{city.name}}</span>
+          <span class="single_city" v-for="city in citys" :key="city.code">
+            {{city.name}}
+            <span class="xz_checkbox">
+              <input type="checkbox">
+              <span class="xz_custom_checkbox"></span>
+            </span>
+          </span>
         </div>
       </div>
     </div>
@@ -46,23 +52,8 @@
             code: '000000'
           }
         }], //整理出来的分类集合 (按省分)
-        //测试的热门城市
-        testHot: [{
-          name: '北京',
-          code: '111111'
-        }, {
-          name: '杭州',
-          code: '222222'
-        }, {
-          name: '深圳',
-          code: '333333'
-        }, {
-          name: '上海',
-          code: '444444'
-        }, {
-          name: '广州',
-          code: '555555'
-        }],
+        //测试的热门城市 为了更好地选择和显示统一，还是得传code 数组
+        testHot: ['130300', '220300', '441400', '460100', '511900', '530800', '610100'],
         //选择的省的城市
         citys: []
       }
@@ -73,7 +64,18 @@
       this.area = Data.area;
       this.count = 0;
       //热门城市 (需要监听，获取到的数据可能会延迟)
-      this.domain[0].city = this.citys = this.testHot;
+      //根据传入的热门code来筛选出热门城市
+      if (this.testHot.length > 0) {
+        let citys = [];
+        for (let i = 0; i < this.testHot.length; i++) {
+          for (let ii = 0; ii < this.city.length; ii++) {
+            if (this.testHot[i] == this.city[ii].code) {
+              citys.push(this.city[ii]);
+            }
+          }
+        }
+        this.domain[0].city = this.citys = citys;
+      }
 
       for (let i = 0; i < this.province.length; i++) {
         //循环 省
@@ -207,7 +209,7 @@
   }
 
   .xz_domain {
-    width: 740px;
+    width: 850px;
     background: #fff;
     margin: 0 auto;
     height: 450px;
@@ -239,7 +241,7 @@
   }
 
   .xz_city {
-    width: 585px;
+    width: 695px;
     height: 100%;
     overflow-y: scroll;
     padding: 0 10px;
@@ -258,5 +260,39 @@
 
   .xz_city .single_city:hover {
     color: #5f4b8b;
+  }
+  .xz_checkbox{
+    position:relative;
+    width:15px;
+    height:15px;
+    display:inline-block;
+  }
+  .xz_custom_checkbox{
+    position:absolute;
+    width:100%;
+    height:100%;
+    border-radius: 2px;
+    background:#fff;
+    border:1px solid #ddd;
+    box-sizing: border-box;
+  }
+  .xz_checkbox input[type="checkbox"]{
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    display:block;
+    margin:0;
+    opacity: 0;
+    z-index: 2;
+    cursor: pointer;
+  }
+  .xz_checkbox input[type="checkbox"]:checked+.xz_custom_checkbox::after{
+    content:'';
+    position:absolute;
+    left:0;
+    top:0;
+    
   }
 </style>
