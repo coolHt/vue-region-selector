@@ -19,5 +19,5 @@ http://www.mca.gov.cn/article/sj/xzqh/2019/201901-06/201906211421.html
 ###
 方法名|返回值|说明
 ---|---|---|
-cRegion|`{` <br> `  {province: {code: '000000', 'name': '省'}`<br>`  city: {code: '000000', 'name': '市'}`<br>`  area: {code: '000000', 'name': '区'}` <br> `}`|返回完整的省份数据，城市数据和区域数据
+cRegion|`{` <br> `  province: {code: '000000', 'name': '省'}`<br>`  city: {code: '000000', 'name': '市'}`<br>`  area: {code: '000000', 'name': '区'}` <br> `}`|返回完整的省份数据，城市数据和区域数据
 
