@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <Dispose></Dispose>
+    <Dispose @cRegion="getValue"></Dispose>
   </div>
 </template>
 
@@ -10,6 +10,11 @@ export default {
   name: 'app',
   components:{
     Dispose
+  },
+  methods:{
+    getValue(region){
+      console.log(region);
+    }
   }
 }
 </script>
