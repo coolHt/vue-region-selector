@@ -4,24 +4,43 @@
       <div class="xz_search_input">
         <input type="text" placeholder="搜索">
       </div>
+      <div class="xz_tabs">
+        <ul ref="region">
+          <li :class="c_region==0?'xz_choose':''">省/直辖市</li>
+          <li :class="c_region==1?'xz_choose':''">城市</li>
+          <li :class="c_region==2?'xz_choose':''">区/县</li>
+        </ul>
+      </div>
       <div class="xz_total_domain">
         <!--省选择-->
-        <div class="xz_province">
+        <!-- <div class="xz_province">
           <ul>
             <li v-for="(p,index) in domain" :key="p.province.code" @click="chooseProvince(index,p)" ref="province_btn"
               :class="index == 0?'choosedProvince':''">
               {{p.province.name}}
             </li>
           </ul>
+        </div> -->
+        <div class="xz_region" v-show="c_region==0" ref="province_choose">
+          <span class="single_city" v-for="(p,index) in domain" :key="p.province.code">
+            <i @click="chooseProvince(index,p)" ref="province_btn">{{p.province.name}}</i>
+          </span>
         </div>
         <!--市-->
-        <div class="xz_city">
+        <div class="xz_region" v-show="c_region==1" ref="city_choose">
           <span class="single_city" v-for="city in citys" :key="city.code">
-            {{city.name}}
-            <span class="xz_checkbox">
+            <i>{{city.name}}</i>
+            <!--多选框-->
+            <!-- <span class="xz_checkbox" v-if="multipleCity">
               <input type="checkbox">
               <span class="xz_custom_checkbox"></span>
-            </span>
+            </span> -->
+          </span>
+        </div>
+        <!--区-->
+        <div class="xz_region" v-show="c_region==2">
+          <span class="single_city" v-for="area in areaList" :key="area.code">
+            <i>{{area.name}}</i>
           </span>
         </div>
       </div>
@@ -37,6 +56,10 @@
         default: function () {
           return new Array()
         }
+      },
+      multipleCity: {
+        type: Boolean,
+        default: false
       }
     },
     data() {
@@ -44,18 +67,24 @@
         province: {}, //省
         city: [], //市
         area: [], //区
-        domain: [{
-          area: [],
-          city: [],
-          province: {
-            name: '热门城市',
-            code: '000000'
-          }
-        }], //整理出来的分类集合 (按省分)
+        domain: [
+        //   {
+        //   area: [],
+        //   city: [],
+        //   province: {
+        //     name: '热门城市',
+        //     code: '000000'
+        //   }
+        // }
+        ], //整理出来的分类集合 (按省分)
         //测试的热门城市 为了更好地选择和显示统一，还是得传code 数组
         testHot: ['130300', '220300', '441400', '460100', '511900', '530800', '610100'],
         //选择的省的城市
-        citys: []
+        citys: [],
+        //选择的区
+        areaList:[{code:"1111",name:"hello"}],
+        //选择的板块
+        c_region:0
       }
     },
     created() {
@@ -65,17 +94,17 @@
       this.count = 0;
       //热门城市 (需要监听，获取到的数据可能会延迟)
       //根据传入的热门code来筛选出热门城市
-      if (this.testHot.length > 0) {
-        let citys = [];
-        for (let i = 0; i < this.testHot.length; i++) {
-          for (let ii = 0; ii < this.city.length; ii++) {
-            if (this.testHot[i] == this.city[ii].code) {
-              citys.push(this.city[ii]);
-            }
-          }
-        }
-        this.domain[0].city = this.citys = citys;
-      }
+      // if (this.testHot.length > 0) {
+      //   let citys = [];
+      //   for (let i = 0; i < this.testHot.length; i++) {
+      //     for (let ii = 0; ii < this.city.length; ii++) {
+      //       if (this.testHot[i] == this.city[ii].code) {
+      //         citys.push(this.city[ii]);
+      //       }
+      //     }
+      //   }
+      //   this.domain[0].city = this.citys = citys;
+      // }
 
       for (let i = 0; i < this.province.length; i++) {
         //循环 省
@@ -116,7 +145,19 @@
         this.count += area.length;
         this.domain.push(range);
       }
-      console.log(this.domain);
+    },
+    mounted(){
+      const tabs = this.$refs.region.getElementsByTagName("li");
+      const p_choose = this.$refs.province_choose.getElementsByTagName("i");
+      const _this = this;
+      //切换tab
+      for(let i = 0; i < tabs.length; i++){
+        tabs[i].addEventListener('click', function(){
+          //切换
+          _this.c_region = i;
+        }.bind(tabs[i]),false);
+      }
+      //选择省份
     },
     methods: {
       //选择省
@@ -136,18 +177,51 @@
             }
           }
           //////
+          //选区切换
+          this.c_region = 1;
         }
+      },
+      //选择市
+      chooseCity(index, choice){
+
       },
       //移除class
       removeClass(lists, classname) {
-        lists.forEach((list) => { //其他项去除class
-          if (list.classList.value.indexOf(classname) != -1) list.classList.remove(classname);
-        })
+        for(let i = 0; i < lists.length; i++){//其他项去除class
+          if (lists[i].classList.value.indexOf(classname) != -1) lists[i].classList.remove(classname);
+        }
       }
     }
   }
 </script>
 <style scoped>
+  .xz_tabs {
+    width: 100%;
+    padding-left: 15px;
+    box-sizing: border-box;
+    background: #f5f5f5;
+    border-bottom: 1px solid #e6e7e7;
+  }
+
+  .xz_tabs ul {
+    overflow: hidden;
+    padding-left: 0;
+    margin: 0;
+    position: relative;
+    top:1px;
+  }
+
+  .xz_tabs ul li {
+    float: left;
+    padding: 8px 20px;
+    list-style: none;
+    font-size: 14px;
+    line-height: 25px;
+    color: #424a5e;
+    cursor: pointer;
+    border:1px solid transparent;
+  }
+
   .xz_province {
     background: #f9fafb;
     height: 100%;
@@ -161,7 +235,12 @@
     margin: 0;
     padding: 0;
   }
-
+  .xz_choose{
+    background:#fff !important;
+    border-top-color:#e6e7e7 !important;
+    border-left-color:#e6e7e7 !important;
+    border-right-color:#e6e7e7 !important;
+  }
   .xz_province li {
     width: 100%;
     box-sizing: border-box;
@@ -186,9 +265,9 @@
     background: #5f4b8b;
   }
 
-  .xz_province .choosedProvince {
-    background: #fff;
-    color: #5f4b8b;
+  .choosedProvince {
+    background: #5f4b8b;
+    color:#fff;
   }
 
   .xz_province li:hover {
@@ -210,7 +289,7 @@
 
   .xz_domain {
     width: 850px;
-    background: #fff;
+    background: #f5f5f5;
     margin: 0 auto;
     height: 450px;
     padding: 20px 0 0 0;
@@ -240,59 +319,70 @@
     display: flex;
   }
 
-  .xz_city {
-    width: 695px;
+  .xz_region {
+    width: 100%;
     height: 100%;
     overflow-y: scroll;
-    padding: 0 10px;
+    padding: 0 35px;
     box-sizing: border-box;
+    background: #ffffff;
   }
 
-  .xz_city .single_city {
-    display: inline-block;
+  .xz_region .single_city {
+    display: flex;
+    float: left;
+    align-items: center;
     width: 25%;
     cursor: pointer;
     font-size: 14px;
     color: #424a5e;
     line-height: 25px;
-    padding: 10px 0;
+    padding: 5px 0;
   }
-
-  .xz_city .single_city:hover {
+  .xz_region .single_city i{
+    font-style: normal;
+    padding:3px 8px;
+  }
+  .xz_region .single_city:hover {
     color: #5f4b8b;
   }
-  .xz_checkbox{
-    position:relative;
-    width:15px;
-    height:15px;
-    display:inline-block;
+
+  .xz_checkbox {
+    position: relative;
+    width: 15px;
+    height: 15px;
+    display: inline-block;
+    margin-left: 5px;
   }
-  .xz_custom_checkbox{
-    position:absolute;
-    width:100%;
-    height:100%;
+
+  .xz_custom_checkbox {
+    position: absolute;
+    width: 100%;
+    height: 100%;
     border-radius: 2px;
-    background:#fff;
-    border:1px solid #ddd;
+    background: #fff;
+    border: 1px solid #ddd;
     box-sizing: border-box;
   }
-  .xz_checkbox input[type="checkbox"]{
-    position:absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    display:block;
-    margin:0;
+
+  .xz_checkbox input[type="checkbox"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    margin: 0;
     opacity: 0;
     z-index: 2;
     cursor: pointer;
   }
-  .xz_checkbox input[type="checkbox"]:checked+.xz_custom_checkbox::after{
-    content:'';
-    position:absolute;
-    left:0;
-    top:0;
-    
+
+  .xz_checkbox input[type="checkbox"]:checked+.xz_custom_checkbox::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+
   }
 </style>
