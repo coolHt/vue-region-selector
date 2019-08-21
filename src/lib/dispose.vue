@@ -1,7 +1,8 @@
 <template>
   <div>
     {{region_select}}
-    <input type="text" readonly class="trigger_select" @click="region_select = !region_select" v-model="c_value" placeholder="请选择区域">
+    <input type="text" readonly class="trigger_select" @click="region_select = !region_select" v-model="c_value"
+      placeholder="请选择区域">
     <div class="xz_selecter" v-show="region_select">
       <div class="xz_domain">
         <i class="xz_close" @click="region_select = false"></i>
@@ -17,23 +18,15 @@
         </div>
         <div class="xz_total_domain">
           <!--省选择-->
-          <!-- <div class="xz_province">
-          <ul>
-            <li v-for="(p,index) in domain" :key="p.province.code" @click="chooseProvince(index,p)" ref="province_btn"
-              :class="index == 0?'choosedProvince':''">
-              {{p.province.name}}
-            </li>
-          </ul>
-        </div> -->
           <div class="xz_region" v-show="c_region==0" ref="province_choose">
             <span class="single_city" v-for="(p,index) in domain" :key="p.province.code">
-              <i @click="chooseProvince(index,p)" ref="province_btn">{{p.province.name}}</i>
+              <i @click="chooseProvince(index,p)" :data-code="p.province.code" ref="province_btn">{{p.province.name}}</i>
             </span>
           </div>
           <!--市-->
           <div class="xz_region" v-show="c_region==1" ref="city_choose">
             <span class="single_city" v-for="(city,index) in citys" :key="city.code">
-              <i @click="chooseCity(index,city)" ref="city_btn">{{city.name}}</i>
+              <i @click="chooseCity(index,city)" :data-code="city.code" ref="city_btn">{{city.name}}</i>
               <!--多选框-->
               <!-- <span class="xz_checkbox" v-if="multipleCity">
               <input type="checkbox">
@@ -44,7 +37,7 @@
           <!--区-->
           <div class="xz_region" v-show="c_region==2">
             <span class="single_city" v-for="(area,index) in areaList" :key="area.code">
-              <i @click="chooseArea(index,area)" ref="area_btn">{{area.name}}</i>
+              <i @click="chooseArea(index,area)" :data-code="area.code" ref="area_btn">{{area.name}}</i>
             </span>
           </div>
         </div>
@@ -65,14 +58,16 @@
       multipleCity: {
         type: Boolean,
         default: false
-      }
+      },
+      //设置的初始化地址
+      selected: {}
     },
     data() {
       return {
         //控制选择器出现 
         region_select: false,
         //输入框中的值
-        c_value:'',
+        c_value: '',
         province: {}, //省
         city: [], //市
         area: [], //区
@@ -100,7 +95,6 @@
         provinceChoose: {}, //已选择的省
         cityChoose: {}, //已选择的城市
         areaChoose: {}, //已选择的城市
-
       }
     },
     created() {
@@ -173,7 +167,110 @@
           _this.c_region = i;
         }.bind(tabs[i]), false);
       }
-      //选择省份
+      //如果一开始就有初始化的对象
+      //首先拿province,拿不到数据的话就说明有误，不需要再找市和区
+      if (JSON.stringify(this.selected) != "{}") { //判断是否为空
+        let hasProvince = false; //记录是否有匹配的结果
+        let hasCity = false;
+        let hasArea = false;
+        const provincecode = this.selected.province; //省code
+        const citycode = this.selected.city; //市code
+        const areacode = this.selected.area; //区code
+        let provincename;
+        let cityname;
+        let areaname;
+
+        if (provincecode) {
+          for (let i = 0; i < this.domain.length; i++) {
+            if (this.domain[i].province.code == provincecode) {
+              hasProvince = true;
+              //省名
+              provincename = this.domain[i].province;
+              //记录省所在的位置
+              this.provinceIndex = i;
+              //获取该位置下的所有城市
+              this.citys = this.domain[i].city;
+              break;
+            }
+          }
+        }
+
+        //市
+        if (hasProvince) {
+          if (citycode) {
+            const city = this.domain[this.provinceIndex].city;
+            for (let i = 0; i < city.length; i++) {
+              if (city[i].code == citycode) {
+                hasCity = true;
+                //市名
+                cityname = city[i];
+                //保存所在的所有citys
+                this.citys = city;
+              }
+            }
+          }
+        }
+        //区
+        if (hasCity) {
+          if (areacode) {
+            const _this = this;
+            const consist = citycode.substr(0, 4);
+            let getArea = [];
+            //筛选出所在的区
+            this.domain[this.provinceIndex].area.forEach((item) => {
+              if (item.code.substr(0, 4) == consist) getArea.push(item);
+            })
+            //匹配区的code
+            getArea.forEach( (area) => {
+              if(area.code == areacode){
+                hasArea = true;
+                //区名
+                areaname = area;
+                //设置区列表
+                _this.areaList = getArea;
+                //面板直接显示区
+                _this.c_region = 2;
+              }
+            } )
+          }
+        }
+        //数据都匹配到之后开始设置
+        if(hasArea) {
+          //首先设置输入框value
+          this.c_value = provincename.name + '-' + cityname.name + '-' + areaname.name;
+          //设置已选择的省市区
+          this.provinceChoose = provincename;
+          this.cityChoose = cityname;
+          this.areaChoose = areaname;
+          //设置样式
+          this.$nextTick( () => {
+            for(let i =0; i < this.$refs.province_btn.length; i++){
+              if(this.$refs.province_btn[i].dataset.code == provincecode){
+                console.log(1);
+                this.$refs.province_btn[i].classList.add("choosedProvince");
+              }
+            }
+            for(let i =0; i < this.$refs.city_btn.length; i++){
+              if(this.$refs.city_btn[i].dataset.code == citycode){
+                this.$refs.city_btn[i].classList.add("choosedProvince");
+              }
+            }
+            for(let i =0; i < this.$refs.area_btn.length; i++){
+              if(this.$refs.area_btn[i].dataset.code == areacode){
+                this.$refs.area_btn[i].classList.add("choosedProvince");
+              }
+            }
+          } )
+        }
+      }
+
+    },
+    watch: {
+      'selected': {
+        handler: function () {
+          console.log(this.selected);
+        }
+      }
     },
     methods: {
       //选择省
@@ -221,6 +318,8 @@
           //已经知道是哪个省，直接去那个省所在的索引，然后再找县，前4位一样即可
           const area = this.domain[this.provinceIndex].area; //所在省的所有的area
           const consist = choice.code.substr(0, 4);
+          //先清空一次
+          this.areaList = [];
           area.forEach((item) => {
             if (item.code.substr(0, 4) == consist) this.areaList.push(item);
           })
@@ -253,7 +352,7 @@
         //给输入框赋值
         this.c_value = this.provinceChoose.name + '-' + this.cityChoose.name + '-' + this.areaChoose.name;
         //将数据返回出去
-        this.$emit("cRegion",region);
+        this.$emit("cRegion", region);
       },
 
       //移除class
@@ -266,18 +365,19 @@
   }
 </script>
 <style scoped>
-  .trigger_select{
-    width:250px;
-    height:38px;
+  .trigger_select {
+    width: 250px;
+    height: 38px;
     box-sizing: border-box;
-    padding:0 15px;
+    padding: 0 15px;
     border-radius: 5px;
-    border:1px solid #ddd;
+    border: 1px solid #ddd;
     outline: none;
     font-size: 14px;
-    background:#fff;
+    background: #fff;
     cursor: pointer;
   }
+
   .xz_tabs {
     width: 100%;
     padding-left: 15px;
@@ -380,17 +480,19 @@
     padding: 20px 0 0 0;
     position: relative;
   }
-  .xz_close{
-    position:absolute;
-    top:15px;
-    right:15px;
-    display:block;
-    width:20px;
-    height:20px;
-    background:url('../assets/close.png') no-repeat;
-    background-size:100% auto;
+
+  .xz_close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    display: block;
+    width: 20px;
+    height: 20px;
+    background: url('../assets/close.png') no-repeat;
+    background-size: 100% auto;
     cursor: pointer;
   }
+
   .xz_search_input {
     padding: 0 20px;
     margin-bottom: 20px;

@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <Dispose @cRegion="getValue"></Dispose>
+    <Dispose @cRegion="getValue" :selected="region"></Dispose>
   </div>
 </template>
 
@@ -10,6 +10,15 @@ export default {
   name: 'app',
   components:{
     Dispose
+  },
+  data(){
+    return {
+      region: {
+        province: "330000",
+        city: "330200",
+        area: "330282",
+      }
+    }
   },
   methods:{
     getValue(region){
