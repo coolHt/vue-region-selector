@@ -3,14 +3,44 @@
     <div class="xz_con">
       <i v-if="c_value.trim() != ''" class="delete_value" @click="clearSelected"></i>
       <input type="text" readonly class="trigger_select" @click="region_select = !region_select" v-model="c_value"
-      placeholder="请选择区域">
+        placeholder="请选择区域">
     </div>
     <div class="xz_selector" v-show="region_select">
       <div class="xz_domain">
         <i class="xz_close" @click="region_select = false"></i>
-        <!-- <div class="xz_search_input">
-          <input type="text" placeholder="搜索">
-        </div> -->
+        <div v-if="search" class="xz_search_input">
+          <input type="text" placeholder="搜索" v-model="searchField" @input="searchMethod">
+          <div class="search_result_con" v-show="showResult">
+            <div class="search_result">
+              <div class="search_line" v-if="searchProvince.length > 0">
+                <h1>省/直辖市</h1>
+                <div class="search_item_con">
+                  <div class="search_item" v-for="(province) in searchProvince">
+                    <span ref="sProvince" @click="sProvince(province.code)">{{province.name}}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="search_line" v-if="searchCity.length > 0">
+                <h1>城市</h1>
+                <div class="search_item_con">
+                  <div class="search_item" v-for="(city) in searchCity">
+                    <span ref="sCity" @click="sCity(city.code)">{{city.name}}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="search_line" v-if="searchArea.length > 0">
+                <h1>区/县</h1>
+                <div class="search_item_con">
+                  <div class="search_item" v-for="(area) in searchArea">
+                    <span ref="sArea" @click="sArea(area.code)">{{area.name}}</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
         <div class="xz_tabs">
           <ul ref="region">
             <li :class="c_region==0?'xz_choose':''">省/直辖市</li>
@@ -21,9 +51,8 @@
         <div class="xz_total_domain">
           <!--省选择-->
           <div class="xz_region" v-show="c_region==0" ref="province_choose">
-            <span class="single_city" v-for="(p,index) in domain" :key="p.province.code">
-              <i @click="chooseProvince(index,p)" :data-code="p.province.code"
-                ref="province_btn">{{p.province.name}}</i>
+            <span class="single_city" v-for="(p,index) in province" :key="p.code">
+              <i @click="chooseProvince(index,p)" :data-code="p.code" ref="province_btn">{{p.name}}</i>
             </span>
           </div>
           <!--市-->
@@ -68,6 +97,11 @@
         default: function () {
           return {}
         }
+      },
+      //是否有搜索框
+      search: {
+        type: Boolean,
+        default: false
       }
     },
     data() {
@@ -79,16 +113,7 @@
         province: {}, //省
         city: [], //市
         area: [], //区
-        domain: [
-          //   {
-          //   area: [],
-          //   city: [],
-          //   province: {
-          //     name: '热门城市',
-          //     code: '000000'
-          //   }
-          // }
-        ], //整理出来的分类集合 (按省分)
+        domain: [], //整理出来的分类集合 (按省分)
         //测试的热门城市 为了更好地选择和显示统一，还是得传code 数组
         testHot: ['130300', '220300', '441400', '460100', '511900', '530800', '610100'],
         //选择的省的城市
@@ -103,6 +128,14 @@
         provinceChoose: {}, //已选择的省
         cityChoose: {}, //已选择的城市
         areaChoose: {}, //已选择的城市
+        //搜索的字段
+        searchField: '',
+        //搜索结果
+        searchProvince: [],
+        searchCity: [],
+        searchArea: [],
+        //显示搜索结果
+        showResult: false
       }
     },
     created() {
@@ -190,7 +223,7 @@
       //选择省
       chooseProvince(index, choice) {
         //给已选择的省份赋值
-        this.provinceChoose = choice.province;
+        this.provinceChoose = choice;
         const _this = this;
         //选择项 不是已选择项， 选择项加class, 其他项有class的去掉class
         if (this.$refs.province_btn[index].classList.value.indexOf('choosedProvince') == -1) {
@@ -201,7 +234,7 @@
           //province
           //拿出点击的省中的城市
           for (let i = 0; i < this.domain.length; i++) {
-            if (this.domain[i].province.code == choice.province.code) {
+            if (this.domain[i].province.code == choice.code) {
               //记录省所在的位置
               this.provinceIndex = i;
               //获取该位置下的所有城市
@@ -378,63 +411,213 @@
         }
       },
       //清除所选项
-      clearSelected(){
+      clearSelected() {
         //清除选择的class
         this.removeClass(this.$refs.province_btn, "choosedProvince");
         this.removeClass(this.$refs.city_btn, "choosedProvince");
         this.removeClass(this.$refs.area_btn, "choosedProvince");
         //
         this.provinceIndex = 0,
-        //清空选择项
-        this.provinceChoose = {};
+          //清空选择项
+          this.provinceChoose = {};
         this.cityChoose = {};
         this.areaChoose = {};
         this.c_value = ''; //清空文字
         this.c_region = 0; //面板位置恢复
+      },
+      //搜索
+      searchMethod() {
+        if (this.searchField.trim() != '') {
+          //初始化
+          this.searchProvince = [];
+          this.searchCity = [];
+          this.searchArea = [];
+          //搜索区
+          for (let i = 0; i < this.area.length; i++) {
+            if (this.area[i].name.indexOf(this.searchField) != -1) {
+              this.searchArea.push(this.area[i]);
+            }
+          }
+          //搜索市
+          for (let i = 0; i < this.city.length; i++) {
+            if (this.city[i].name.indexOf(this.searchField) != -1) {
+              this.searchCity.push(this.city[i]);
+            }
+          }
+          //搜索省
+          for (let i = 0; i < this.province.length; i++) {
+            if (this.province[i].name.indexOf(this.searchField) != -1) {
+              this.searchProvince.push(this.province[i]);
+            }
+          }
+
+          if (this.searchProvince.length > 0 || this.searchCity.length > 0 || this.searchArea.length > 0) this
+            .showResult = true;
+
+        } else {
+          this.showResult = false;
+          this.searchProvince = [];
+          this.searchCity = [];
+          this.searchArea = [];
+        }
+      },
+      //选择搜索结果
+      sProvince(code) {
+        this.c_region = 0;
+      },
+      sCity(code) {
+        this.c_region = 1;
+      },
+      sArea(code) { //已经是区了，所以直接关闭选择
+        this.showResult = false;
+        this.c_region = 2;
+        this.searchField = '';
+        //关闭选择框
+        this.region_select = false;
+        //还是要还原选项
+        this.areaList = [];
+        this.citys = [];
+        
+        //但是还是要找到关联的数据
+        const code2 = code.substr(0, 2); //通过这个找省
+        const code4 = code.substr(0, 4); //通过这个找市
+        let provinceIndex;
+        for (let i = 0; i < this.province.length; i++) {
+          if (this.province[i].code.substr(0, 2) == code2) {
+            this.provinceChoose = this.province[i]; //设置选中的省
+            this.removeClass(this.$refs.province_btn, "choosedProvince");
+            this.$refs.province_btn[i].classList.add("choosedProvince");
+            provinceIndex = i; //记录哪个省
+            //知道了是哪个省之后就可以拿市了
+            this.citys = this.domain[i].city;
+            this.$nextTick(() => {
+              for (let i = 0; i < this.citys.length; i++) {
+                if (this.citys[i].code.substr(0, 4) == code4) {
+                  this.cityChoose = this.citys[i]; //设置选中的市
+                  this.removeClass(this.$refs.city_btn, "choosedProvince");
+                  this.$refs.city_btn[i].classList.add("choosedProvince");
+                  //筛选区/县
+                  this.domain[provinceIndex].area.forEach((item) => {
+                    if (item.code.substr(0, 4) == code4) this.areaList.push(item);
+                  })
+                  for (let i = 0; i < this.areaList.length; i++) {
+                    if (this.areaList[i].code == code) {
+                      this.areaChoose = this.areaList[i]; //设置选中的区
+                      this.$nextTick(() => {
+                        this.removeClass(this.$refs.area_btn, "choosedProvince");
+                        this.$refs.area_btn[i].classList.add("choosedProvince");
+
+                      })
+                      //返回数据
+                      let region = {
+                        province: this.provinceChoose,
+                        city: this.cityChoose,
+                        area: this.areaChoose
+                      }
+                      //给输入框赋值
+                      this.c_value = this.provinceChoose.name + '-' + this.cityChoose.name + '-' + this.areaChoose
+                        .name;
+                      //将数据返回出去
+                      this.$emit("cRegion", region);
+                      break;
+                    }
+                  }
+                  break;
+                }
+              }
+            })
+            break;
+          }
+
+        }
+
+
       }
     }
   }
 </script>
 <style scoped>
-  .xz_con{
-    width:270px;
-    position:relative;
+  .xz_con {
+    width: 270px;
+    position: relative;
   }
-  .delete_value{
-    position:absolute;
-    right:15px;
-    top:15px;
-    display:block;
-    width:16px;
-    height:16px;
-    cursor:pointer;
+
+  .search_line {
+    width: 100%;
   }
-  .delete_value::before{
-    position:absolute;
-    content:'';
-    display:block;
-    width:16px;
-    height:2px;
-    transform-origin:50% 50%;
-    background:#424a5e;
-    left:0px;
-    top:7px;
-    border-radius:20px;
-    transform:rotatez(130deg);
+
+  .search_line h1 {
+    font-size: 14px;
+    padding: 5px 0 5px 10px;
+    margin: 0 0 5px 0;
+    width: 100%;
+    box-sizing: border-box;
+    border-bottom: 1px solid #ddd;
   }
-  .delete_value::after{
-    position:absolute;
-    content:'';
-    display:block;
-    width:16px;
-    height:2px;
-    transform-origin:50% 50%;
-    background:#424a5e;
-    left:0px;
-    top:7px;
-    border-radius:20px;
-    transform:rotatez(50deg);
+
+  .search_item_con {
+    width: 90%;
+    margin: 0 auto 10px auto;
+    display: flex;
+    flex-wrap: wrap;
   }
+
+  .search_item {
+    width: 33%;
+  }
+
+  .search_item span {
+    padding: 5px 5px;
+    margin-bottom: 5px;
+    font-size: 13px;
+    display: inline-block;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .search_item span:hover {
+    background: #5f4b8b;
+    color: #fff;
+  }
+
+  .delete_value {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    display: block;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+  }
+
+  .delete_value::before {
+    position: absolute;
+    content: '';
+    display: block;
+    width: 16px;
+    height: 2px;
+    transform-origin: 50% 50%;
+    background: #424a5e;
+    left: 0px;
+    top: 7px;
+    border-radius: 20px;
+    transform: rotatez(130deg);
+  }
+
+  .delete_value::after {
+    position: absolute;
+    content: '';
+    display: block;
+    width: 16px;
+    height: 2px;
+    transform-origin: 50% 50%;
+    background: #424a5e;
+    left: 0px;
+    top: 7px;
+    border-radius: 20px;
+    transform: rotatez(50deg);
+  }
+
   .trigger_select {
     width: 100%;
     height: 45px;
@@ -446,7 +629,7 @@
     font-size: 14px;
     background: #fff;
     cursor: pointer;
-    color:#424a5e;
+    color: #424a5e;
   }
 
   .xz_tabs {
@@ -560,27 +743,29 @@
     width: 20px;
     height: 20px;
     cursor: pointer;
-    z-index:100;
+    z-index: 100;
   }
-  .xz_close::after{
-    content:'';
-    width:20px;
-    height:2px;
+
+  .xz_close::after {
+    content: '';
+    width: 20px;
+    height: 2px;
     display: block;
-    background:#424a5e;
-    position:absolute;
-    left:0;
-    top:3px;
+    background: #424a5e;
+    position: absolute;
+    left: 0;
+    top: 3px;
     transform-origin: 100%;
-    transform:rotatez(-45deg);
+    transform: rotatez(-45deg);
   }
-  .xz_close::before{
-    content:'';
-    width:20px;
-    height:2px;
+
+  .xz_close::before {
+    content: '';
+    width: 20px;
+    height: 2px;
     display: block;
-    background:#424a5e;
-    position:absolute;
+    background: #424a5e;
+    position: absolute;
     right: -6px;
     top: 3px;
     transform-origin: 0;
@@ -590,6 +775,7 @@
   .xz_search_input {
     padding: 0 20px;
     margin-bottom: 20px;
+    position: relative;
   }
 
   .xz_search_input input {
@@ -604,7 +790,38 @@
     color: #424a5e;
   }
 
-  .xz_total_domain {
+  .xz_search_input .search_result_con {
+    position: absolute;
+    left: 15px;
+    top: 45px;
+    z-index: 200;
+  }
+
+  .xz_search_input .search_result {
+    min-width: 200px;
+    max-width: 700px;
+    min-height: 100px;
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    background: #fff;
+  }
+
+  .xz_search_input .search_result_con::before {
+    content: '';
+    display: block;
+    width: 0;
+    height: 0;
+    position: absolute;
+    left: 80px;
+    top: -19px;
+    border: 10px solid #fff;
+    border-top: 10px solid transparent;
+    border-left-color: transparent;
+    border-right-color: transparent;
+  }
+
+  . .xz_total_domain {
     width: 100%;
     height: 400px;
     display: flex;
@@ -613,7 +830,7 @@
   .xz_region {
     width: 100%;
     height: 100%;
-    overflow-y: scroll;
+    overflow-y: auto;
     padding: 0 35px;
     box-sizing: border-box;
     background: #ffffff;
