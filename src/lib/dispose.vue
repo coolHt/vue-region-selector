@@ -1,7 +1,10 @@
 <template>
   <div>
-    <input type="text" readonly class="trigger_select" @click="region_select = !region_select" v-model="c_value"
+    <div class="xz_con">
+      <i v-if="c_value.trim() != ''" class="delete_value" @click="clearSelected"></i>
+      <input type="text" readonly class="trigger_select" @click="region_select = !region_select" v-model="c_value"
       placeholder="请选择区域">
+    </div>
     <div class="xz_selector" v-show="region_select">
       <div class="xz_domain">
         <i class="xz_close" @click="region_select = false"></i>
@@ -373,14 +376,68 @@
             })
           }
         }
+      },
+      //清除所选项
+      clearSelected(){
+        //清除选择的class
+        this.removeClass(this.$refs.province_btn, "choosedProvince");
+        this.removeClass(this.$refs.city_btn, "choosedProvince");
+        this.removeClass(this.$refs.area_btn, "choosedProvince");
+        //
+        this.provinceIndex = 0,
+        //清空选择项
+        this.provinceChoose = {};
+        this.cityChoose = {};
+        this.areaChoose = {};
+        this.c_value = ''; //清空文字
+        this.c_region = 0; //面板位置恢复
       }
     }
   }
 </script>
 <style scoped>
+  .xz_con{
+    width:270px;
+    position:relative;
+  }
+  .delete_value{
+    position:absolute;
+    right:15px;
+    top:15px;
+    display:block;
+    width:16px;
+    height:16px;
+    cursor:pointer;
+  }
+  .delete_value::before{
+    position:absolute;
+    content:'';
+    display:block;
+    width:16px;
+    height:2px;
+    transform-origin:50% 50%;
+    background:#424a5e;
+    left:0px;
+    top:7px;
+    border-radius:20px;
+    transform:rotatez(130deg);
+  }
+  .delete_value::after{
+    position:absolute;
+    content:'';
+    display:block;
+    width:16px;
+    height:2px;
+    transform-origin:50% 50%;
+    background:#424a5e;
+    left:0px;
+    top:7px;
+    border-radius:20px;
+    transform:rotatez(50deg);
+  }
   .trigger_select {
-    width: 250px;
-    height: 38px;
+    width: 100%;
+    height: 45px;
     box-sizing: border-box;
     padding: 0 15px;
     border-radius: 5px;
@@ -389,6 +446,7 @@
     font-size: 14px;
     background: #fff;
     cursor: pointer;
+    color:#424a5e;
   }
 
   .xz_tabs {
