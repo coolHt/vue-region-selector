@@ -19,7 +19,7 @@ http://www.mca.gov.cn/article/sj/xzqh/2019/201901-06/201906211421.html
 ## 自定义属性
 ###
 属性名|数据格式|默认值|说明
----|---|---|
+---|---|---|---|
 selected|`{` <br> &nbsp;&nbsp;`  province: '000000'`<br>&nbsp;&nbsp;`  city: '000000'`<br>&nbsp;&nbsp;`  area: '000000'` <br> `}`|{}|初始化地区数据,三个数据必须都有效，否则无法初始化
 search|boolean|false|调用搜索框
 ####
