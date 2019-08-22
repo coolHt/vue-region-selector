@@ -2,14 +2,11 @@ var path = require('path')
 var webpack = require('webpack')
 
 module.exports = {
-  entry: './src/lib/index.js',
+  entry: './src/main.js',
   output: {
     path: path.resolve(__dirname, './dist'),
     publicPath: '/dist/',
-    filename: 'xz-region-selector.js',
-    library: "MRegion",
-    libraryTarget: "umd",
-    umdNamedDefine: true
+    filename: 'build.js'
   },
   module: {
     rules: [{
@@ -28,12 +25,8 @@ module.exports = {
       },
       {
         test: /\.js$/,
-        use: [{
-          loader: 'babel-loader',
-          options: {
-            presets: ['es2015']
-          }
-        }]
+        loader: 'babel-loader',
+        exclude: /node_modules/
       },
       {
         test: /\.(png|jpg|gif|svg)$/,

@@ -60,7 +60,12 @@
         default: false
       },
       //设置的初始化地址
-      selected: {}
+      selected: {
+        type: Object,
+        default: function () {
+          return {}
+        }
+      }
     },
     data() {
       return {
@@ -347,21 +352,21 @@
               for (let i = 0; i < this.$refs.province_btn.length; i++) {
                 if (this.$refs.province_btn[i].dataset.code == provincecode) {
                   //先删一遍class
-                  this.removeClass(this.$refs.province_btn,"choosedProvince");
+                  this.removeClass(this.$refs.province_btn, "choosedProvince");
                   this.$refs.province_btn[i].classList.add("choosedProvince");
                 }
               }
               for (let i = 0; i < this.$refs.city_btn.length; i++) {
                 if (this.$refs.city_btn[i].dataset.code == citycode) {
                   //先删一遍class
-                  this.removeClass(this.$refs.city_btn,"choosedProvince");
+                  this.removeClass(this.$refs.city_btn, "choosedProvince");
                   this.$refs.city_btn[i].classList.add("choosedProvince");
                 }
               }
               for (let i = 0; i < this.$refs.area_btn.length; i++) {
                 if (this.$refs.area_btn[i].dataset.code == areacode) {
                   //先删一遍class
-                  this.removeClass(this.$refs.area_btn,"choosedProvince");
+                  this.removeClass(this.$refs.area_btn, "choosedProvince");
                   this.$refs.area_btn[i].classList.add("choosedProvince");
                 }
               }
