@@ -20,7 +20,7 @@ http://www.mca.gov.cn/article/sj/xzqh/2019/201901-06/201906211421.html
 ###
 属性名|数据格式|说明
 ---|---|---|
-selected|`{` <br> `  province: '000000'`<br>&nbsp;&nbsp;`  city: '000000'`<br>&nbsp;&nbsp;`  area: '000000'` <br>&nbsp;&nbsp; `}`|初始化地区数据,三个数据必须都有效，否则无法初始化
+selected|`{` <br> &nbsp;&nbsp;`  province: '000000'`<br>&nbsp;&nbsp;`  city: '000000'`<br>&nbsp;&nbsp;`  area: '000000'` <br>&nbsp;&nbsp; `}`|初始化地区数据,三个数据必须都有效，否则无法初始化
 ####
 
 ####
@@ -28,7 +28,7 @@ selected|`{` <br> `  province: '000000'`<br>&nbsp;&nbsp;`  city: '000000'`<br>&n
 ###
 方法名|返回值|说明
 ---|---|---|
-cRegion|`{` <br> `  province: {code: '000000', 'name': '省'}`<br>&nbsp;&nbsp;`  city: {code: '000000', 'name': '市'}`<br>&nbsp;&nbsp;`  area: {code: '000000', 'name': '区'}` <br>&nbsp;&nbsp; `}`|返回完整的省份数据，城市数据和区域数据
+cRegion|`{` <br> &nbsp;&nbsp;`  province: {code: '000000', 'name': '省'}`<br>&nbsp;&nbsp;`  city: {code: '000000', 'name': '市'}`<br>&nbsp;&nbsp;`  area: {code: '000000', 'name': '区'}` <br>&nbsp;&nbsp; `}`|返回完整的省份数据，城市数据和区域数据
 
 
 
