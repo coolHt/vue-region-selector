@@ -1,14 +1,13 @@
 <template>
   <div>
-    {{region_select}}
     <input type="text" readonly class="trigger_select" @click="region_select = !region_select" v-model="c_value"
       placeholder="请选择区域">
     <div class="xz_selecter" v-show="region_select">
       <div class="xz_domain">
         <i class="xz_close" @click="region_select = false"></i>
-        <div class="xz_search_input">
+        <!-- <div class="xz_search_input">
           <input type="text" placeholder="搜索">
-        </div>
+        </div> -->
         <div class="xz_tabs">
           <ul ref="region">
             <li :class="c_region==0?'xz_choose':''">省/直辖市</li>
@@ -20,7 +19,8 @@
           <!--省选择-->
           <div class="xz_region" v-show="c_region==0" ref="province_choose">
             <span class="single_city" v-for="(p,index) in domain" :key="p.province.code">
-              <i @click="chooseProvince(index,p)" :data-code="p.province.code" ref="province_btn">{{p.province.name}}</i>
+              <i @click="chooseProvince(index,p)" :data-code="p.province.code"
+                ref="province_btn">{{p.province.name}}</i>
             </span>
           </div>
           <!--市-->
@@ -168,107 +168,13 @@
         }.bind(tabs[i]), false);
       }
       //如果一开始就有初始化的对象
-      //首先拿province,拿不到数据的话就说明有误，不需要再找市和区
-      if (JSON.stringify(this.selected) != "{}") { //判断是否为空
-        let hasProvince = false; //记录是否有匹配的结果
-        let hasCity = false;
-        let hasArea = false;
-        const provincecode = this.selected.province; //省code
-        const citycode = this.selected.city; //市code
-        const areacode = this.selected.area; //区code
-        let provincename;
-        let cityname;
-        let areaname;
-
-        if (provincecode) {
-          for (let i = 0; i < this.domain.length; i++) {
-            if (this.domain[i].province.code == provincecode) {
-              hasProvince = true;
-              //省名
-              provincename = this.domain[i].province;
-              //记录省所在的位置
-              this.provinceIndex = i;
-              //获取该位置下的所有城市
-              this.citys = this.domain[i].city;
-              break;
-            }
-          }
-        }
-
-        //市
-        if (hasProvince) {
-          if (citycode) {
-            const city = this.domain[this.provinceIndex].city;
-            for (let i = 0; i < city.length; i++) {
-              if (city[i].code == citycode) {
-                hasCity = true;
-                //市名
-                cityname = city[i];
-                //保存所在的所有citys
-                this.citys = city;
-              }
-            }
-          }
-        }
-        //区
-        if (hasCity) {
-          if (areacode) {
-            const _this = this;
-            const consist = citycode.substr(0, 4);
-            let getArea = [];
-            //筛选出所在的区
-            this.domain[this.provinceIndex].area.forEach((item) => {
-              if (item.code.substr(0, 4) == consist) getArea.push(item);
-            })
-            //匹配区的code
-            getArea.forEach( (area) => {
-              if(area.code == areacode){
-                hasArea = true;
-                //区名
-                areaname = area;
-                //设置区列表
-                _this.areaList = getArea;
-                //面板直接显示区
-                _this.c_region = 2;
-              }
-            } )
-          }
-        }
-        //数据都匹配到之后开始设置
-        if(hasArea) {
-          //首先设置输入框value
-          this.c_value = provincename.name + '-' + cityname.name + '-' + areaname.name;
-          //设置已选择的省市区
-          this.provinceChoose = provincename;
-          this.cityChoose = cityname;
-          this.areaChoose = areaname;
-          //设置样式
-          this.$nextTick( () => {
-            for(let i =0; i < this.$refs.province_btn.length; i++){
-              if(this.$refs.province_btn[i].dataset.code == provincecode){
-                console.log(1);
-                this.$refs.province_btn[i].classList.add("choosedProvince");
-              }
-            }
-            for(let i =0; i < this.$refs.city_btn.length; i++){
-              if(this.$refs.city_btn[i].dataset.code == citycode){
-                this.$refs.city_btn[i].classList.add("choosedProvince");
-              }
-            }
-            for(let i =0; i < this.$refs.area_btn.length; i++){
-              if(this.$refs.area_btn[i].dataset.code == areacode){
-                this.$refs.area_btn[i].classList.add("choosedProvince");
-              }
-            }
-          } )
-        }
-      }
+      this.initRegion(this.selected);
 
     },
     watch: {
       'selected': {
         handler: function () {
-          console.log(this.selected);
+          this.initRegion(this.selected);
         }
       }
     },
@@ -348,7 +254,6 @@
           city: this.cityChoose,
           area: this.areaChoose
         }
-        console.log(region);
         //给输入框赋值
         this.c_value = this.provinceChoose.name + '-' + this.cityChoose.name + '-' + this.areaChoose.name;
         //将数据返回出去
@@ -359,6 +264,109 @@
       removeClass(lists, classname) {
         for (let i = 0; i < lists.length; i++) { //其他项去除class
           if (lists[i].classList.value.indexOf(classname) != -1) lists[i].classList.remove(classname);
+        }
+      },
+      //有初始化值进行初始化
+      initRegion(region) {
+        //首先拿province,拿不到数据的话就说明有误，不需要再找市和区
+        if (JSON.stringify(region) != "{}") { //判断是否为空
+          let hasProvince = false; //记录是否有匹配的结果
+          let hasCity = false;
+          let hasArea = false;
+          const provincecode = region.province; //省code
+          const citycode = region.city; //市code
+          const areacode = region.area; //区code
+          let provincename;
+          let cityname;
+          let areaname;
+
+          if (provincecode) {
+            for (let i = 0; i < this.domain.length; i++) {
+              if (this.domain[i].province.code == provincecode) {
+                hasProvince = true;
+                //省名
+                provincename = this.domain[i].province;
+                //记录省所在的位置
+                this.provinceIndex = i;
+                //获取该位置下的所有城市
+                this.citys = this.domain[i].city;
+                break;
+              }
+            }
+          }
+
+          //市
+          if (hasProvince) {
+            if (citycode) {
+              const city = this.domain[this.provinceIndex].city;
+              for (let i = 0; i < city.length; i++) {
+                if (city[i].code == citycode) {
+                  hasCity = true;
+                  //市名
+                  cityname = city[i];
+                  //保存所在的所有citys
+                  this.citys = city;
+                }
+              }
+            }
+          }
+          //区
+          if (hasCity) {
+            if (areacode) {
+              const _this = this;
+              const consist = citycode.substr(0, 4);
+              let getArea = [];
+              //筛选出所在的区
+              this.domain[this.provinceIndex].area.forEach((item) => {
+                if (item.code.substr(0, 4) == consist) getArea.push(item);
+              })
+              //匹配区的code
+              getArea.forEach((area) => {
+                if (area.code == areacode) {
+                  hasArea = true;
+                  //区名
+                  areaname = area;
+                  //设置区列表
+                  _this.areaList = getArea;
+                  //面板直接显示区
+                  _this.c_region = 2;
+                }
+              })
+            }
+          }
+          //数据都匹配到之后开始设置
+          if (hasArea) {
+            //首先设置输入框value
+            this.c_value = provincename.name + '-' + cityname.name + '-' + areaname.name;
+            //设置已选择的省市区
+            this.provinceChoose = provincename;
+            this.cityChoose = cityname;
+            this.areaChoose = areaname;
+            //设置样式
+            this.$nextTick(() => {
+              for (let i = 0; i < this.$refs.province_btn.length; i++) {
+                if (this.$refs.province_btn[i].dataset.code == provincecode) {
+                  //先删一遍class
+                  this.removeClass(this.$refs.province_btn,"choosedProvince");
+                  this.$refs.province_btn[i].classList.add("choosedProvince");
+                }
+              }
+              for (let i = 0; i < this.$refs.city_btn.length; i++) {
+                if (this.$refs.city_btn[i].dataset.code == citycode) {
+                  //先删一遍class
+                  this.removeClass(this.$refs.city_btn,"choosedProvince");
+                  this.$refs.city_btn[i].classList.add("choosedProvince");
+                }
+              }
+              for (let i = 0; i < this.$refs.area_btn.length; i++) {
+                if (this.$refs.area_btn[i].dataset.code == areacode) {
+                  //先删一遍class
+                  this.removeClass(this.$refs.area_btn,"choosedProvince");
+                  this.$refs.area_btn[i].classList.add("choosedProvince");
+                }
+              }
+            })
+          }
         }
       }
     }

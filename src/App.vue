@@ -20,6 +20,16 @@ export default {
       }
     }
   },
+  mounted(){
+    const _this = this;
+    setTimeout( ()=> {
+      _this.region = {
+        province: "420000",
+        city: "421300",
+        area: "421381"
+      }
+    },5000)
+  },
   methods:{
     getValue(region){
       console.log(region);
