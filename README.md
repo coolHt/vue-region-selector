@@ -29,7 +29,8 @@ selected|`{` <br> `  province: '000000'`<br>`  city: '000000'`<br>`  area: '0000
 方法名|返回值|说明
 ---|---|---|
 cRegion|`{` <br> `  province: {code: '000000', 'name': '省'}`<br>`  city: {code: '000000', 'name': '市'}`<br>`  area: {code: '000000', 'name': '区'}` <br> `}`|返回完整的省份数据，城市数据和区域数据
-
+##
+<style> table {     width: 100%; } </style>
 
 
 
