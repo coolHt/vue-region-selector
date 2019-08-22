@@ -501,9 +501,32 @@
     display: block;
     width: 20px;
     height: 20px;
-    background: url('../assets/close.png') no-repeat;
-    background-size: 100% auto;
     cursor: pointer;
+    z-index:100;
+  }
+  .xz_close::after{
+    content:'';
+    width:20px;
+    height:2px;
+    display: block;
+    background:#424a5e;
+    position:absolute;
+    left:0;
+    top:3px;
+    transform-origin: 100%;
+    transform:rotatez(-45deg);
+  }
+  .xz_close::before{
+    content:'';
+    width:20px;
+    height:2px;
+    display: block;
+    background:#424a5e;
+    position:absolute;
+    right: -6px;
+    top: 3px;
+    transform-origin: 0;
+    transform: rotatez(45deg);
   }
 
   .xz_search_input {
