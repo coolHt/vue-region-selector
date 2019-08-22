@@ -464,9 +464,58 @@
       //选择搜索结果
       sProvince(code) {
         this.c_region = 0;
+        //还是要还原选项
+        this.areaList = [];
+        this.citys = [];
+        this.showResult = false;
+        this.searchField = '';
+        const code2 = code.substr(0, 2); //通过这个找省
+        for (let i = 0; i < this.province.length; i++) {
+          if (this.province[i].code.substr(0, 2) == code2) {
+            this.provinceChoose = this.province[i]; //设置选中的省
+            this.removeClass(this.$refs.province_btn, "choosedProvince");
+            this.$refs.province_btn[i].classList.add("choosedProvince");
+            //知道了是哪个省之后就可以拿市了
+            this.citys = this.domain[i].city;
+            break;
+          }
+        }
       },
       sCity(code) {
         this.c_region = 1;
+        //还是要还原选项
+        this.areaList = [];
+        this.citys = [];
+        this.showResult = false;
+        this.searchField = '';
+        const code2 = code.substr(0, 2); //通过这个找省
+        const code4 = code.substr(0, 4); //通过这个找市
+        let provinceIndex;
+        for (let i = 0; i < this.province.length; i++) {
+          if (this.province[i].code.substr(0, 2) == code2) {
+            this.provinceChoose = this.province[i]; //设置选中的省
+            this.removeClass(this.$refs.province_btn, "choosedProvince");
+            this.$refs.province_btn[i].classList.add("choosedProvince");
+            provinceIndex = i; //记录哪个省
+            //知道了是哪个省之后就可以拿市了
+            this.citys = this.domain[i].city;
+            this.$nextTick(() => {
+              for (let i = 0; i < this.citys.length; i++) {
+                if (this.citys[i].code.substr(0, 4) == code4) {
+                  this.cityChoose = this.citys[i]; //设置选中的市
+                  this.removeClass(this.$refs.city_btn, "choosedProvince");
+                  this.$refs.city_btn[i].classList.add("choosedProvince");
+                  //筛选区/县
+                  this.domain[provinceIndex].area.forEach((item) => {
+                    if (item.code.substr(0, 4) == code4) this.areaList.push(item);
+                  })
+                  break;
+                }
+              }
+            })
+            break;
+          }
+        }
       },
       sArea(code) { //已经是区了，所以直接关闭选择
         this.showResult = false;
@@ -528,7 +577,6 @@
             })
             break;
           }
-
         }
 
 
