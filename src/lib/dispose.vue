@@ -2,7 +2,7 @@
   <div>
     <input type="text" readonly class="trigger_select" @click="region_select = !region_select" v-model="c_value"
       placeholder="请选择区域">
-    <div class="xz_selecter" v-show="region_select">
+    <div class="xz_selector" v-show="region_select">
       <div class="xz_domain">
         <i class="xz_close" @click="region_select = false"></i>
         <!-- <div class="xz_search_input">
@@ -468,7 +468,7 @@
     color: #5f4b8b;
   }
 
-  .xz_selecter {
+  .xz_selector {
     position: fixed;
     z-index: 9999;
     top: 0;
