@@ -1,13 +1,17 @@
 {
-  "name": "regison-selecter",
-  "description": "A Vue.js project",
+  "name": "region-selector",
+  "description": "region-selector of custom",
   "version": "1.0.0",
   "author": "handsomeBoy <>",
   "license": "MIT",
-  "private": true,
+  "private": false,
   "scripts": {
     "dev": "cross-env NODE_ENV=development webpack-dev-server --open --hot",
     "build": "cross-env NODE_ENV=production webpack --progress --hide-modules"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coolHt/vue-region-selector"
   },
   "dependencies": {
     "babel-preset-es2015": "^6.24.1",
