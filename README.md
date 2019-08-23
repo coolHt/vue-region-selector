@@ -34,12 +34,12 @@ Vue.use(regionSelector)
 ###
 属性名|数据格式|默认值|说明
 ---|---|---|---|
-selected|Object<br>`{` <br> &nbsp;&nbsp;`  province: '000000'`<br>&nbsp;&nbsp;`  city: '000000'`<br>&nbsp;&nbsp;`  area: '000000'` <br> `}`|{}|初始化地区数据,三个数据必须都有效，否则无法初始化
+selected|Object<br>`{` <br> &nbsp;&nbsp;`  province: '000000'`<br>&nbsp;&nbsp;`  city: '000000'`<br>&nbsp;&nbsp;`  area: '000000'` <br> `}`|{}|初始化地区数据,三个数据必须都有效，否则无法初始化 注意: 初始化的数据和选择的模式有关(省/市/区)
 search|Boolean|false|调用搜索框
-areaGet|Boolean|true|选择到区域
-cityGet|Boolean|false|选择到城市
+areaGet|Boolean|true|默认选择到区域，如设置了省或市模式，则会被显示为省模式或市模式
+cityGet|Boolean|false|选择到城市，如果同时设置了省，则会显示为省模式
 provinceGet|Boolean|false|选择到省份
-multpleCity|Boolean|false|城市多选，如果需要使用此属性,必须启用city
+multpleCity|Boolean|false|城市多选，如果需要使用此属性,必须启用市模式(设置cityGet = true)，且provinceGet不能为true
 ####
 
 ####
