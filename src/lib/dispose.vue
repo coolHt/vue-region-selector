@@ -5,12 +5,12 @@
       <input type="text" readonly class="trigger_select" @click="region_select = !region_select" v-model="c_value"
         placeholder="请选择区域">
     </div>
-    <div class="xz_selector" v-show="region_select">
+    <div class="xz_selector" v-show="region_select" ref="selector" @click="clickOut"> 
       <div class="xz_domain">
-        <i class="xz_close" @click="region_select = false"></i>
+        <i class="xz_close" @click="xz_close"></i>
         <div v-if="search" class="xz_search_input">
-          <input type="text" placeholder="搜索" v-model="searchField" @input="searchMethod">
-          <div class="search_result_con" v-show="showResult">
+          <input type="text" placeholder="搜索" v-model="searchField" @input="searchMethod"  @click.stop="">
+          <div class="search_result_con" v-show="showResult"  @click.stop="">
             <div class="search_result">
               <div class="search_line" v-if="searchProvince.length > 0">
                 <h1>省/直辖市</h1>
@@ -419,11 +419,41 @@
         //
         this.provinceIndex = 0,
           //清空选择项
-          this.provinceChoose = {};
+        this.provinceChoose = {};
         this.cityChoose = {};
         this.areaChoose = {};
         this.c_value = ''; //清空文字
         this.c_region = 0; //面板位置恢复
+      },
+      //关闭
+      xz_close(){
+        this.region_select = false;
+        //初始化
+        this.clear();
+      },
+      //初始化
+      clear(){
+        //已选择的
+        this.provinceChoose = {};
+        this.cityChoose = {};
+        this.areaChoose = {};
+        this.c_value = ''; //清空文字
+        this.c_region = 0; //面板位置恢复
+        this.searchField = '';
+         //搜索结果
+        this.searchProvince = [];
+        this.searchCity = [];
+        this.searchArea = [];
+        //省的数据一直都存在所以不需要清只需要清理class
+        this.removeClass(this.$refs.province_btn, "choosedProvince");
+        //选择的省的城市
+        this.citys = [];
+        //选择的区
+        this.areaList = [];
+      },
+      //点击外部关闭搜索结果框
+      clickOut(){
+        this.showResult = false;
       },
       //搜索
       searchMethod() {
