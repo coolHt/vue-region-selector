@@ -663,8 +663,8 @@
     right: 15px;
     top: 15px;
     display: block;
-    width: 16px;
-    height: 16px;
+    width: 13px;
+    height: 13px;
     cursor: pointer;
   }
 
@@ -672,7 +672,7 @@
     position: absolute;
     content: '';
     display: block;
-    width: 16px;
+    width: 13px;
     height: 2px;
     transform-origin: 50% 50%;
     background: #424a5e;
@@ -686,7 +686,7 @@
     position: absolute;
     content: '';
     display: block;
-    width: 16px;
+    width: 13px;
     height: 2px;
     transform-origin: 50% 50%;
     background: #424a5e;
