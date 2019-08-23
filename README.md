@@ -6,10 +6,17 @@ hav full functionality to choose the region u want, but my want is yours, tempor
 #### 数据来源 (正规渠道，最新数据，每次更新都获取这里的数据)
 http://www.mca.gov.cn/article/sj/xzqh/2019/201901-06/201906211421.html
 
+### 使用方式
+```
+npm install region-selector ---save
+Vue.use(regionSelector)
+<regionSelector></regionSelector>
+```
+
 ### 暂定功能
 #### 可自定义热门城市
 #### 支持城市可多选(省，区县暂不支持)
-#### 提供搜索
+#### 提供搜索✅
 
 
 ### 2019.8.21 
