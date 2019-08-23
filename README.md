@@ -36,9 +36,9 @@ Vue.use(regionSelector)
 ---|---|---|---|
 selected|Object<br>`{` <br> &nbsp;&nbsp;`  province: '000000'`<br>&nbsp;&nbsp;`  city: '000000'`<br>&nbsp;&nbsp;`  area: '000000'` <br> `}`|{}|初始化地区数据,三个数据必须都有效，否则无法初始化
 search|Boolean|false|调用搜索框
-area|Boolean|true|选择到区域
-city|Boolean|false|选择到城市
-province|Boolean|false|选择到省份
+areaGet|Boolean|true|选择到区域
+cityGet|Boolean|false|选择到城市
+provinceGet|Boolean|false|选择到省份
 multpleCity|Boolean|false|城市多选，如果需要使用此属性,必须启用city
 ####
 
