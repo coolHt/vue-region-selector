@@ -250,6 +250,7 @@
         const _this = this;
         //选择项 不是已选择项， 选择项加class, 其他项有class的去掉class
         if (this.$refs.province_btn[index].classList.value.indexOf('choosedProvince') == -1) {
+          this.areaList = [];
           //移除class
           this.removeClass(this.$refs.province_btn, 'choosedProvince');
           //选择项添加class
@@ -1001,7 +1002,7 @@
     border-right-color: transparent;
   }
 
-  . .xz_total_domain {
+  .xz_total_domain {
     width: 100%;
     height: 400px;
     display: flex;
