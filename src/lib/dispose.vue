@@ -42,7 +42,7 @@
         <div class="xz_tabs">
           <button class="multpleReturn" @click="multpleReturn"
             v-if="!provinceGet && cityGet && multipleCity">选择完成</button>
-          <button class="clearChoose" @click="clearChoose" v-if="!provinceGet && cityGet && multipleCity">清除已选择</button>
+          <button class="clearChoose" @click="clear" v-if="!provinceGet && cityGet && multipleCity">清除已选择</button>
           <ul ref="region">
             <li :class="c_region==0?'xz_choose':''">省/直辖市</li>
             <li :class="c_region==1?'xz_choose':''" v-if="showCityTab">城市</li>
@@ -61,10 +61,10 @@
             <span class="single_city" v-for="(city,index) in citys" :key="city.code">
               <i @click="chooseCity(index,city)" :data-code="city.code" ref="city_btn">{{city.name}}</i>
               <!--多选框-->
-              <span class="xz_checkbox" v-if="!provinceGet && cityGet && multipleCity">
-                <input type="checkbox">
+              <!-- <span class="xz_checkbox" v-if="!provinceGet && cityGet && multipleCity">
+                <input type="checkbox" ref="chooseBox">
                 <span class="xz_custom_checkbox"></span>
-              </span>
+              </span> -->
             </span>
           </div>
           <!--区-->
@@ -143,6 +143,7 @@
         //可能返回的对象
         provinceChoose: {}, //已选择的省
         cityChoose: {}, //已选择的城市
+        cityChooseArr: [], //已选择的城市数组
         areaChoose: {}, //已选择的城市
         //搜索的字段
         searchField: '',
@@ -250,8 +251,17 @@
     methods: {
       //选择省
       chooseProvince(index, choice) {
+        if (this.provinceChoose.code == choice.code) { //如果选的是同一个，没必要进行下去了
+          return;
+        }
+
+        //因为选择的不是同一个省，所以已选择的要重置
+        this.cityChoose = {}; //已选择的城市
+        this.cityChooseArr = []; //已选择的城市数组
+        this.areaChoose = {}; //已选择的城市
         //给已选择的省份赋值
         this.provinceChoose = choice;
+
         const _this = this;
         //选择项 不是已选择项， 选择项加class, 其他项有class的去掉class
         if (this.$refs.province_btn[index].classList.value.indexOf('choosedProvince') == -1) {
@@ -289,43 +299,52 @@
       //选择市
       chooseCity(index, choice) {
         //给已选择的市赋值
-        this.cityChoose = choice;
+        if (this.multipleCity && this.cityGet) { //如果多选
+        } else {
+          this.cityChoose = choice;
+        }
         const _this = this;
         //选择项 不是已选择项， 选择项加class, 其他项有class的去掉class
         if (this.$refs.city_btn[index].classList.value.indexOf('choosedProvince') == -1 || this.multipleCity) {
-          console.log(this.$refs.city_btn[index]);
           if (!this.cityGet) { //如果不是选择城市
             //移除class
             this.removeClass(this.$refs.city_btn, 'choosedProvince');
             //选择项添加class
             this.$refs.city_btn[index].classList.add('choosedProvince');
-          } else if(this.cityGet && this.multipleCity) { //可以点多个
+          } else if (this.cityGet && this.multipleCity) { //可以点多个
             if (this.$refs.city_btn[index].classList.contains('choosedProvince')) {
               this.$refs.city_btn[index].classList.remove('choosedProvince');
+
+              //去掉数组中存在的
+              this.cityChooseArr.forEach((city, index) => {
+                if (city.code == choice.code) {
+                  this.cityChooseArr.splice(index, 1);
+                }
+              })
             } else {
               this.$refs.city_btn[index].classList.add('choosedProvince');
+              //判断原来的数组中有没有存在
+              this.cityChooseArr.push(choice);
             }
           }
-          
+
           //先清空一次
           this.areaList = [];
           if (!_this.cityGet && !_this.provinceGet) { //如果要选择区的话
-          //city
-          //拿出点击的市中的区/县
-          //已经知道是哪个省，直接去那个省所在的索引，然后再找县，前4位一样即可
-          const area = this.domain[this.provinceIndex].area; //所在省的所有的area
-          const consist = choice.code.substr(0, 4); 
+            //city
+            //拿出点击的市中的区/县
+            //已经知道是哪个省，直接去那个省所在的索引，然后再找县，前4位一样即可
+            const area = this.domain[this.provinceIndex].area; //所在省的所有的area
+            const consist = choice.code.substr(0, 4);
             area.forEach((item) => {
               if (item.code.substr(0, 4) == consist) this.areaList.push(item);
             })
           }
-
           //////
           //选区切换
           setTimeout(() => {
             //差别
             if (_this.cityGet) { //已经过滤掉省，所以只需要判断有没有设置市
-              console.log(_this.multipleCity);
               //返回所选的省/市/区
               if (!_this.multipleCity) { //如果不是多选
                 _this.region_select = false;
@@ -366,10 +385,20 @@
           let hasArea = false;
           //
           const provincecode = region.province; //省code
-          const citycode = region.city; //市code
+          let citycode; //市code
+          if (this.cityGet && this.multipleCity) { //多选
+            if (Array.isArray(region.city)) {
+              citycode = region.city;
+            } else { //如果值不是数组，则转换成数组,单个值的情况下
+              citycode = [region.city];
+            }
+          } else {
+            citycode = Array.isArray(region.city) ? region.city[0] : region.city;
+          }
           const areacode = region.area; //区code
           let provincename;
-          let cityname;
+          let cityname = '';
+          let citynameArr = []; //多选数组
           let areaname;
 
           if (provincecode) {
@@ -389,21 +418,35 @@
           //需要判断是否需要执行 (如果设置了city 并且 没有设置province的情况下)
           //市
           if (hasProvince && (!this.provinceGet)) {
-            if (citycode) {
+            if (citycode) { //判断是数组还是字符串
               const city = this.domain[this.provinceIndex].city;
-              for (let i = 0; i < city.length; i++) {
-                if (city[i].code == citycode) {
-                  if (this.cityGet) { //如果设置了城市，则跳到城市板块
-                    this.c_region = 1;
+              if (!Array.isArray(citycode)) { //如果不是数组
+                for (let i = 0; i < city.length; i++) {
+                  if (city[i].code == citycode) {
+                    if (this.cityGet) { //如果设置了城市，则跳到城市板块
+                      this.c_region = 1;
+                    }
+                    hasCity = true;
+                    //市名
+                    cityname = city[i];
+                    //保存所在的所有citys
+                    this.citys = city;
+                    break;
                   }
-                  hasCity = true;
-                  //市名
-                  cityname = city[i];
-                  //保存所在的所有citys
-                  this.citys = city;
-                  break;
                 }
+              } else { //如果是数组
+                let _this = this;
+                this.c_region = 1;
+                citycode.forEach((c) => {
+                  for (let i = 0; i < city.length; i++) {
+                    if (city[i].code == c) {
+                      hasCity = true;
+                      citynameArr.push(city[i]);
+                    }
+                  }
+                })
               }
+
             }
           }
           //需要判断是否需要执行 (如果city 和 province 都没有设置)
@@ -448,11 +491,26 @@
             })
           }
           if (hasCity && (!hasArea)) { //设置到市
-            this.c_value = provincename.name + '-' + cityname.name;
+
+            if (this.cityGet && this.multipleCity) { //多选状态
+              let nameList = '';
+              citynameArr.forEach((city, index) => {
+                if (index != citynameArr.length - 1) {
+                  nameList += `${city.name}, `;
+                } else {
+                  nameList += city.name;
+                }
+              })
+              this.c_value = `${provincename.name} (${nameList})`;
+              this.cityChooseArr = citynameArr;
+            } else {
+              this.c_value = `${provincename.name}-${cityname.name}`;
+              this.cityChoose = cityname;
+            }
             this.provinceChoose = provincename;
-            this.cityChoose = cityname;
+
             this.$nextTick(() => {
-              for (let i = 0; i < this.$refs.province_btn.length; i++) {
+              for (let i = 0; i < this.$refs.province_btn.length; i++) { //显示省
                 if (this.$refs.province_btn[i].dataset.code == provincecode) {
                   //先删一遍class
                   this.removeClass(this.$refs.province_btn, "choosedProvince");
@@ -460,19 +518,35 @@
                   break;
                 }
               }
-              for (let i = 0; i < this.$refs.city_btn.length; i++) {
-                if (this.$refs.city_btn[i].dataset.code == citycode) {
-                  //先删一遍class
-                  this.removeClass(this.$refs.city_btn, "choosedProvince");
-                  this.$refs.city_btn[i].classList.add("choosedProvince");
-                  break;
+              //显示市
+              if (this.cityGet && this.multipleCity) { //多选状态
+                //先删一遍class
+                this.removeClass(this.$refs.city_btn, "choosedProvince");
+                citynameArr.forEach((c) => {
+                  for (let i = 0; i < this.$refs.city_btn.length; i++) {
+                    if (this.$refs.city_btn[i].dataset.code == c.code) {
+                      this.$refs.city_btn[i].classList.add("choosedProvince");
+                      break;
+                    }
+                  }
+                })
+
+              } else {
+                for (let i = 0; i < this.$refs.city_btn.length; i++) {
+                  if (this.$refs.city_btn[i].dataset.code == citycode) {
+                    //先删一遍class
+                    this.removeClass(this.$refs.city_btn, "choosedProvince");
+                    this.$refs.city_btn[i].classList.add("choosedProvince");
+                    break;
+                  }
                 }
               }
+
             })
           }
           if (hasArea) { //设置到区
             //首先设置输入框value
-            this.c_value = provincename.name + '-' + cityname.name + '-' + areaname.name;
+            this.c_value = `${provincename.name}-${cityname.name}-${areaname.name}`;
             //设置已选择的省市区
             this.provinceChoose = provincename;
             this.cityChoose = cityname;
@@ -518,6 +592,7 @@
         //已选择的
         this.provinceChoose = {};
         this.cityChoose = {};
+        this.cityChooseArr = [];
         this.areaChoose = {};
         this.c_value = ''; //清空文字
         this.c_region = 0; //面板位置恢复
@@ -543,14 +618,14 @@
             area: this.areaChoose
           }
           //给输入框赋值
-          this.c_value = this.provinceChoose.name + '-' + this.cityChoose.name + '-' + this.areaChoose.name;
+          this.c_value = `${this.provinceChoose.name}-${this.cityChoose.name}-${this.areaChoose.name}`;
         } else if ((!this.provinceGet) && this.cityGet) { //如果设置了市并且没有设置省
           region = {
             province: this.provinceChoose,
             city: this.cityChoose
           }
           //给输入框赋值
-          this.c_value = this.provinceChoose.name + '-' + this.cityChoose.name;
+          this.c_value = `${this.provinceChoose.name}-${this.cityChoose.name}`;
         } else if (this.provinceGet) { //如果设置了省
           region = {
             province: this.provinceChoose
@@ -564,11 +639,25 @@
       },
       //多选城市返回数据
       multpleReturn() {
+        if(this.cityChooseArr.length == 0) return; //如果没有选择市
+        let region = {
+          province: this.provinceChoose,
+          city: this.cityChooseArr
+        }
+        //给输入框赋值
+        let cityName = '';
+        this.cityChooseArr.forEach((city, index) => {
+          if (index != this.cityChooseArr.length - 1) {
+            cityName += `${city.name}, `;
+          } else {
+            cityName += city.name;
+          }
+        })
 
-      },
-      //清除已选择
-      clearChoose() {
-
+        this.c_value = `${this.provinceChoose.name} (${cityName})`;
+        //关闭选择框
+        this.region_select = false;
+        this.$emit("cRegion", region);
       },
       //移除class
       removeClass(lists, classname) {
@@ -677,15 +766,12 @@
                       this.returnRegion();
                     }
                   }
-
-
                   //筛选区/县 (如果没有设置省和城市才需要)
                   if ((!this.provinceGet) && (!this.cityGet)) {
                     this.domain[provinceIndex].area.forEach((item) => {
                       if (item.code.substr(0, 4) == code4) this.areaList.push(item);
                     })
                   }
-
                   break;
                 }
               }
@@ -1135,11 +1221,27 @@
     cursor: pointer;
   }
 
+  .xz_checkbox input[type="checkbox"]:checked+.xz_custom_checkbox::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 5px;
+    background: #424a5e;
+    width: 2px;
+    height: 7px;
+    border-radius: 10px;
+    transform: rotateZ(-40deg);
+  }
+
   .xz_checkbox input[type="checkbox"]:checked+.xz_custom_checkbox::after {
     content: '';
     position: absolute;
-    left: 0;
-    top: 0;
-
+    right: 3px;
+    top: 1px;
+    background: #424a5e;
+    width: 2px;
+    height: 10px;
+    transform: rotateZ(26deg);
+    border-radius: 10px;
   }
 </style>
