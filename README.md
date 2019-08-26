@@ -8,11 +8,11 @@ http://www.mca.gov.cn/article/sj/xzqh/2019/201901-06/201906211421.html
 
 ### 暂定功能
 #### 可自定义热门城市 ❌
-#### 支持城市可多选(省，区县暂不支持) --> 测试中
+#### 支持城市可多选(省，区县暂不支持) ✅
 #### 提供搜索 ✅
 
 
-### 使用方式 (当前版本2.9.2)
+### 使用方式 (当前版本2.9.3)
 ```
 npm install region-selector ---save
 Vue.use(regionSelector)
