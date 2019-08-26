@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <Region :search="search" :provinceGet="true" @cRegion="hellos" :selected="data"></Region>
+    <Region :search="search" :cityGet="true" @cRegion="hellos" :multipleCity="true" :selected="selected"></Region>
   </div>
 </template>
 <script>
@@ -9,11 +9,8 @@ export default {
   data(){
     return {
       search: true,
-      data: {
-        province:"420000",
-        city: "420700",
-        area: "420703",
-      }
+      selected: ["330100","330200"],
+      // selected: ["",""],
     }
   },
   methods:{
