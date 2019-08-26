@@ -12,7 +12,7 @@ http://www.mca.gov.cn/article/sj/xzqh/2019/201901-06/201906211421.html
 #### 提供搜索 ✅
 
 
-### 使用方式 (当前版本2.9.1)
+### 使用方式 (当前版本2.9.2)
 ```
 npm install region-selector ---save
 Vue.use(regionSelector)
