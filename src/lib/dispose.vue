@@ -421,7 +421,7 @@
           }
           if(isCity && this.cityGet && !this.provinceGet){ //如果是市类型的code 并且是市模式
             //市模式下有单选和多选的可能
-
+            
           }
           if(isArea && !this.cityGet && !this.provinceGet){ //如果是区类型的code,并且是区模式
             let code2 = codeData.substr(0,2); //匹配区
