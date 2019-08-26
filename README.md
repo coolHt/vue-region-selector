@@ -1,6 +1,5 @@
 # region-selector (全屏遮罩层式)
 Have full functionality to choose the region u want, but my want is yours, temporarily, lol.
-### 各位哥哥姐姐觉得使用方便的话给个star吧。⭐️祝各位靓仔一天更比一天帅，靓女一天更比一天美
 ### 🤟🌟🥴🤠🤸🤺🤾🧟‍♂️🧛🏿‍♂️🧙‍♂️👨‍🎤🌳🏅
 
 #### 数据来源 (正规渠道，最新数据，每次更新都获取这里的数据)
