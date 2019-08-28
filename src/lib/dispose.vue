@@ -579,9 +579,18 @@
       clearReturn() {
         this.clear();
         let region = {
-          province: '',
-          city: '',
-          area: ''
+          province: {
+            code: '',
+            name: ''
+          },
+          city: {
+            code: '',
+            name: ''
+          },
+          area: {
+            code: '',
+            name: ''
+          }
         }
         this.$emit("cRegion", region);
       },
