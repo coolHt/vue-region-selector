@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="xz_con">
-      <i v-if="c_value.trim() != ''" class="delete_value" @click="clear"></i>
+      <i v-if="c_value.trim() != ''" class="delete_value" @click="clearReturn"></i>
       <input type="text" readonly class="trigger_select" @click="region_select = !region_select" v-model="c_value"
         placeholder="请选择区域">
     </div>
@@ -388,13 +388,13 @@
           //需要判断code 是省的还是市的还是区的
           if (codeData.slice(-4) == '0000') { //省
             isProvince = true;
-          }else if(codeData.slice(-4) != '0000' && codeData.slice(-2) == '00'){ //是市
+          } else if (codeData.slice(-4) != '0000' && codeData.slice(-2) == '00') { //是市
             isCity = true;
-          }else{ //区
+          } else { //区
             isArea = true;
           }
           //根据模式的不同来设置,如果模式与code的类型不符合就不用去匹对了
-          if(isProvince && this.provinceGet){ //如果是省类型的code 并且是省模式
+          if (isProvince && this.provinceGet) { //如果是省类型的code 并且是省模式
             for (let i = 0; i < this.domain.length; i++) {
               if (this.domain[i].province.code == codeData) {
                 //省名
@@ -418,63 +418,63 @@
               }
             })
           }
-          if(isCity && this.cityGet && !this.provinceGet){ //如果是市类型的code 并且是市模式
+          if (isCity && this.cityGet && !this.provinceGet) { //如果是市类型的code 并且是市模式
             for (let i = 0; i < this.domain.length; i++) {
-              let code2 = codeData.substr(0,2); //匹配区
-              if (this.domain[i].province.code.substr(0,2) == code2) {
+              let code2 = codeData.substr(0, 2); //匹配区
+              if (this.domain[i].province.code.substr(0, 2) == code2) {
                 //省名
                 provincename = this.domain[i].province;
                 this.provinceChoose = provincename;
                 //记录省所在的位置
                 this.provinceIndex = i;
-                 //获取该位置下的所有城市
+                //获取该位置下的所有城市
                 this.citys = this.domain[i].city;
                 break;
               }
             }
             //判断是多选还是单选
             let isMultple = Array.isArray(this.selected);
-            if(isMultple && this.multipleCity){ //数组并且多选
+            if (isMultple && this.multipleCity) { //数组并且多选
               let _this = this;
               let hasCity = false;
-              let indexArr= [];
-              this.selected.forEach( (city) => {
-                for(let c = 0; c < _this.citys.length; c++){
-                  if(city == _this.citys[c].code){
-                    if(!hasCity) hasCity = true; //
+              let indexArr = [];
+              this.selected.forEach((city) => {
+                for (let c = 0; c < _this.citys.length; c++) {
+                  if (city == _this.citys[c].code) {
+                    if (!hasCity) hasCity = true; //
                     indexArr.push(c);
                   }
                 }
-              } )
-              if(hasCity){
+              })
+              if (hasCity) {
                 this.c_region = 1;
-                this.$nextTick( () =>{
-                    //先删一遍class
-                    let nameList = '';
-                    this.removeClass(this.$refs.province_btn, "choosedProvince");
-                    this.removeClass(this.$refs.city_btn, "choosedProvince");
-                    //设置省
-                    this.$refs.province_btn[this.provinceIndex].classList.add("choosedProvince");
-                    this.cityChooseArr = [];//先清空吧
-                    indexArr.forEach((arr) => {
-                      _this.$refs.city_btn[arr].classList.add("choosedProvince");
-                      _this.cityChooseArr.push(_this.citys[arr]);
-                      if(arr != indexArr.length - 1){
-                        nameList += `${_this.citys[arr].name}, `;
-                      }else{
-                        nameList += `${_this.citys[arr].name}`;
-                      }
-                      
-                      this.c_value = `${provincename.name} (${nameList})`;
-                    
-                    })
-                } )
+                this.$nextTick(() => {
+                  //先删一遍class
+                  let nameList = '';
+                  this.removeClass(this.$refs.province_btn, "choosedProvince");
+                  this.removeClass(this.$refs.city_btn, "choosedProvince");
+                  //设置省
+                  this.$refs.province_btn[this.provinceIndex].classList.add("choosedProvince");
+                  this.cityChooseArr = []; //先清空吧
+                  indexArr.forEach((arr) => {
+                    _this.$refs.city_btn[arr].classList.add("choosedProvince");
+                    _this.cityChooseArr.push(_this.citys[arr]);
+                    if (arr != indexArr.length - 1) {
+                      nameList += `${_this.citys[arr].name}, `;
+                    } else {
+                      nameList += `${_this.citys[arr].name}`;
+                    }
+
+                    this.c_value = `${provincename.name} (${nameList})`;
+
+                  })
+                })
               }
-            }else{
-              for(let c = 0; c < this.citys.length; c++){
-                if(this.citys[c].code == codeData){
-                this.cityChoose = this.citys[c];
-                  this.$nextTick( () => {
+            } else {
+              for (let c = 0; c < this.citys.length; c++) {
+                if (this.citys[c].code == codeData) {
+                  this.cityChoose = this.citys[c];
+                  this.$nextTick(() => {
                     //先删一遍class
                     this.removeClass(this.$refs.province_btn, "choosedProvince");
                     this.removeClass(this.$refs.city_btn, "choosedProvince");
@@ -485,19 +485,19 @@
                     this.c_region = 1;
 
                     this.c_value = `${provincename.name}-${this.citys[c].name}`;
-                  } )
+                  })
                   break;
                 }
               }
             }
           }
-          if(isArea && !this.cityGet && !this.provinceGet){ //如果是区类型的code,并且是区模式
-            let code2 = codeData.substr(0,2); //匹配区
-            let code4 = codeData.substr(0,4); //匹配到市
-            let drawA = 0;//渲染区域的index
-            let drawC = 0;//渲染市的index
+          if (isArea && !this.cityGet && !this.provinceGet) { //如果是区类型的code,并且是区模式
+            let code2 = codeData.substr(0, 2); //匹配区
+            let code4 = codeData.substr(0, 4); //匹配到市
+            let drawA = 0; //渲染区域的index
+            let drawC = 0; //渲染市的index
             for (let i = 0; i < this.domain.length; i++) {
-              if (this.domain[i].province.code.substr(0,2) == code2) {
+              if (this.domain[i].province.code.substr(0, 2) == code2) {
                 //省名
                 provincename = this.domain[i].province;
                 this.provinceChoose = provincename;
@@ -507,18 +507,18 @@
                 this.citys = this.domain[i].city;
                 //如果当前的省下的区中有匹配的
                 let areaArr = [];
-                for(let a = 0; a < this.domain[i].area.length; a++){ //拿到匹配到的区域集合
-                  if(this.domain[i].area[a].code.substr(0,4) == code4){
+                for (let a = 0; a < this.domain[i].area.length; a++) { //拿到匹配到的区域集合
+                  if (this.domain[i].area[a].code.substr(0, 4) == code4) {
                     areaArr.push(this.domain[i].area[a]);
                   }
                 }
-                for(let c = 0; c <areaArr.length; c++){ //这个c也就是要给样式的那个index
-                  if(areaArr[c].code == codeData){//如果能匹配到同一个区域
+                for (let c = 0; c < areaArr.length; c++) { //这个c也就是要给样式的那个index
+                  if (areaArr[c].code == codeData) { //如果能匹配到同一个区域
                     //将匹配到的区域数组赋值出去
                     this.areaList = areaArr;
                     this.areaChoose = areaArr[c];
-                    for(let c2 = 0; c2 < this.citys.length; c2++){
-                      if(this.citys[c2].code.substr(0,4) == code4){
+                    for (let c2 = 0; c2 < this.citys.length; c2++) {
+                      if (this.citys[c2].code.substr(0, 4) == code4) {
                         this.cityChoose = this.citys[c2];
                         drawC = c2;
                         break;
@@ -526,7 +526,7 @@
                     }
                     drawA = c;
                     this.c_region = 2;
-                    this.$nextTick( () => {
+                    this.$nextTick(() => {
                       //先删一遍class
                       this.removeClass(this.$refs.province_btn, "choosedProvince");
                       this.removeClass(this.$refs.city_btn, "choosedProvince");
@@ -538,13 +538,15 @@
                       //设置区
                       this.$refs.area_btn[c].classList.add("choosedProvince");
                       this.c_value = `${provincename.name}-${this.citys[drawC].name}-${areaArr[c].name}`;
-                    } )
+                    })
                     break;
                   }
                 }
               }
             }
           }
+        } else {
+          this.clear();
         }
       },
       //关闭
@@ -573,6 +575,15 @@
         this.citys = [];
         //选择的区
         this.areaList = [];
+      },
+      clearReturn() {
+        this.clear();
+        let region = {
+          province: '',
+          city: '',
+          area: ''
+        }
+        this.$emit("cRegion", region);
       },
       //赋值选择的地区并返回出数据
       returnRegion() {
@@ -605,7 +616,7 @@
       },
       //多选城市返回数据
       multpleReturn() {
-        if(this.cityChooseArr.length == 0) return; //如果没有选择市
+        if (this.cityChooseArr.length == 0) return; //如果没有选择市
         let region = {
           province: this.provinceChoose,
           city: this.cityChooseArr
@@ -844,11 +855,13 @@
     background: #5f4b8b;
     color: #fff;
   }
-  .xz_selector i{
-    color:#424a5e;
-    font-size:14px;
+
+  .xz_selector i {
+    color: #424a5e;
+    font-size: 14px;
 
   }
+
   .delete_value {
     position: absolute;
     right: 15px;
@@ -1005,8 +1018,9 @@
     width: 5px;
     background: #5f4b8b;
   }
-  .choosedProvince{
-    color:#fff !important;
+
+  .choosedProvince {
+    color: #fff !important;
     background: #5f4b8b;
   }
 
