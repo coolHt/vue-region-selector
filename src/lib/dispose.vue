@@ -297,6 +297,7 @@
         if (this.multipleCity && this.cityGet) { //如果多选
         } else {
           this.cityChoose = choice;
+          console.log(this.cityChoose);
         }
         const _this = this;
         //选择项 不是已选择项， 选择项加class, 其他项有class的去掉class
@@ -330,7 +331,9 @@
             //拿出点击的市中的区/县
             //已经知道是哪个省，直接去那个省所在的索引，然后再找县，前4位一样即可
             const area = this.domain[this.provinceIndex].area; //所在省的所有的area
+            console.log(area);
             const consist = choice.code.substr(0, 4);
+            console.log(consist);
             area.forEach((item) => {
               if (item.code.substr(0, 4) == consist) this.areaList.push(item);
             })
@@ -706,6 +709,7 @@
         for (let i = 0; i < this.province.length; i++) {
           if (this.province[i].code.substr(0, 2) == code2) {
             this.provinceChoose = this.province[i]; //设置选中的省
+            this.provinceIndex = i; //省所在的索引
             this.removeClass(this.$refs.province_btn, "choosedProvince");
             this.$refs.province_btn[i].classList.add("choosedProvince");
             //知道了是哪个省之后就可以拿市了
@@ -803,7 +807,6 @@
                       this.$nextTick(() => {
                         this.removeClass(this.$refs.area_btn, "choosedProvince");
                         this.$refs.area_btn[i].classList.add("choosedProvince");
-
                       })
                       //返回数据
                       this.returnRegion();
@@ -862,13 +865,12 @@
 
   .search_item span:hover {
     background: #5f4b8b;
-    color: #fff;
+    color: #fff !important;
   }
 
   .xz_selector i {
     color: #424a5e;
     font-size: 14px;
-
   }
 
   .delete_value {
