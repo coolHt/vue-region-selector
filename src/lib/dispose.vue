@@ -40,13 +40,23 @@
           </div>
         </div>
         <div class="xz_tabs">
+          <!--多选按钮-->
           <button class="multpleReturn" @click="multpleReturn"
             v-if="!provinceGet && cityGet && multipleCity">选择完成</button>
+          <!--单选无区域差按钮-->
+          <button class="multpleReturn" @click="returnSingle"
+            v-if="fullrange && !multipleCity">选择完成</button> <!--multipleCity 不能为true-->
           <button class="clearChoose" @click="clear" v-if="!provinceGet && cityGet && multipleCity">清除已选择</button>
           <ul ref="region">
             <li :class="c_region==0?'xz_choose':''">省/直辖市</li>
             <li :class="c_region==1?'xz_choose':''" v-if="showCityTab">城市</li>
             <li :class="c_region==2?'xz_choose':''" v-if="showAreaTab">区/县</li>
+            <li v-if="fullrange && !multipleCity">
+              已选择: 
+              <span v-if="isEmptyObj(provinceChoose)">{{provinceChoose.name}}</span>
+              <span v-if="isEmptyObj(cityChoose)"> / {{cityChoose.name}}</span>
+              <span v-if="isEmptyObj(areaChoose)"> / {{areaChoose.name}}</span>
+            </li>
           </ul>
         </div>
         <div class="xz_total_domain">
@@ -113,6 +123,11 @@
       areaGet: {
         type: Boolean,
         default: true
+      },
+      //设置无区域范围单选
+      fullrange:{  //为true表示可无差别选择单个区域省或市或区都行
+        type: Boolean,
+        default: false
       }
     },
     data() {
@@ -147,7 +162,9 @@
         searchCity: [],
         searchArea: [],
         //显示搜索结果
-        showResult: false
+        showResult: false,
+        //无区域限制情况下判断选到了哪一区域阶段
+        rangeSet:0
       }
     },
     created() {
@@ -296,13 +313,16 @@
         //给已选择的市赋值
         if (this.multipleCity && this.cityGet) { //如果多选
         } else {
+          if(choice.code != this.cityChoose.code){
+            this.areaChoose = {};
+          }
           this.cityChoose = choice;
-          console.log(this.cityChoose);
+          
         }
         const _this = this;
         //选择项 不是已选择项， 选择项加class, 其他项有class的去掉class
         if (this.$refs.city_btn[index].classList.value.indexOf('choosedProvince') == -1 || this.multipleCity) {
-          if (!this.cityGet) { //如果不是选择城市
+          if (!this.cityGet || this.fullrange) { //如果不是选择城市
             //移除class
             this.removeClass(this.$refs.city_btn, 'choosedProvince');
             //选择项添加class
@@ -310,7 +330,6 @@
           } else if (this.cityGet && this.multipleCity) { //可以点多个
             if (this.$refs.city_btn[index].classList.contains('choosedProvince')) {
               this.$refs.city_btn[index].classList.remove('choosedProvince');
-
               //去掉数组中存在的
               this.cityChooseArr.forEach((city, index) => {
                 if (city.code == choice.code) {
@@ -331,12 +350,12 @@
             //拿出点击的市中的区/县
             //已经知道是哪个省，直接去那个省所在的索引，然后再找县，前4位一样即可
             const area = this.domain[this.provinceIndex].area; //所在省的所有的area
-            console.log(area);
             const consist = choice.code.substr(0, 4);
-            console.log(consist);
+          
             area.forEach((item) => {
               if (item.code.substr(0, 4) == consist) this.areaList.push(item);
             })
+            
           }
           //////
           //选区切换
@@ -345,15 +364,15 @@
             if (_this.cityGet) { //已经过滤掉省，所以只需要判断有没有设置市
               //返回所选的省/市/区
               if (!_this.multipleCity) { //如果不是多选
-                _this.region_select = false;
-                _this.returnRegion();
-                //关闭选择器
+                if(!this.fullrange){
+                  _this.region_select = false;
+                  _this.returnRegion();
+                  //关闭选择器
+                }
               }
-
             } else { //如果没有设置市
               _this.c_region = 2;
             }
-
           }, 150)
         }
       },
@@ -367,10 +386,12 @@
           //选择项添加class
           this.$refs.area_btn[index].classList.add('choosedProvince');
         }
-        //关闭选择器
-        this.region_select = false;
-        //返回所选的省/市/区
-        this.returnRegion();
+        if(!this.fullrange){  //如果fullrange为false的话，直接返回并关闭数据
+           //关闭选择器
+          this.region_select = false;
+           //返回所选的省/市/区
+          this.returnRegion();
+        }
       },
 
       //有初始化值进行初始化
@@ -397,12 +418,16 @@
             isArea = true;
           }
           //根据模式的不同来设置,如果模式与code的类型不符合就不用去匹对了
-          if (isProvince && this.provinceGet) { //如果是省类型的code 并且是省模式
+          if (isProvince && (this.provinceGet || this.fullrange)) { //如果是省类型的code 并且是省模式
             for (let i = 0; i < this.domain.length; i++) {
               if (this.domain[i].province.code == codeData) {
                 //省名
                 provincename = this.domain[i].province;
                 this.provinceChoose = provincename;
+                if(this.fullrange && !this.provinceGet){
+                  //获取该位置下的所有城市
+                  this.citys = this.domain[i].city;
+                }
                 //记录省所在的位置
                 this.provinceIndex = i;
                 break;
@@ -421,7 +446,7 @@
               }
             })
           }
-          if (isCity && this.cityGet && !this.provinceGet) { //如果是市类型的code 并且是市模式
+          if (isCity && ((this.cityGet && !this.provinceGet) || this.fullrange)) { //如果是市类型的code 并且是市模式 或者是跨区单选模式
             for (let i = 0; i < this.domain.length; i++) {
               let code2 = codeData.substr(0, 2); //匹配区
               if (this.domain[i].province.code.substr(0, 2) == code2) {
@@ -430,8 +455,7 @@
                 this.provinceChoose = provincename;
                 //记录省所在的位置
                 this.provinceIndex = i;
-                //获取该位置下的所有城市
-                this.citys = this.domain[i].city;
+                
                 break;
               }
             }
@@ -567,6 +591,7 @@
         this.areaChoose = {};
         this.c_value = ''; //清空文字
         this.c_region = 0; //面板位置恢复
+        this.rangeSet = 0; //无区域差别选择恢复为0
         this.searchField = '';
         //搜索结果
         this.searchProvince = [];
@@ -600,7 +625,7 @@
       //赋值选择的地区并返回出数据
       returnRegion() {
         let region;
-        if ((!this.provinceGet) && (!this.cityGet)) { //如果省、市都没有设置
+        if (((!this.provinceGet) && (!this.cityGet) || (this.fullrange && this.rangeSet == 3)) && this.isEmptyObj(this.provinceChoose) && this.isEmptyObj(this.cityChoose) && this.isEmptyObj(this.areaChoose)) { //如果省、市都没有设置 或者 无区域差别情况下三个区域都已经有值 //三个区域必须有值
           region = {
             province: this.provinceChoose,
             city: this.cityChoose,
@@ -608,14 +633,14 @@
           }
           //给输入框赋值
           this.c_value = `${this.provinceChoose.name}-${this.cityChoose.name}-${this.areaChoose.name}`;
-        } else if ((!this.provinceGet) && this.cityGet) { //如果设置了市并且没有设置省
+        } else if ((!this.provinceGet) && this.cityGet || (this.fullrange && this.rangeSet == 2)) { //如果设置了市并且没有设置省 或者 无区域差别情况下省市区域都已经有值
           region = {
             province: this.provinceChoose,
             city: this.cityChoose
           }
           //给输入框赋值
           this.c_value = `${this.provinceChoose.name}-${this.cityChoose.name}`;
-        } else if (this.provinceGet) { //如果设置了省
+        } else if (this.provinceGet || (this.fullrange && this.rangeSet == 1)) { //如果设置了省 或者 无区域差别情况下省区域都已经有值
           region = {
             province: this.provinceChoose
           }
@@ -647,6 +672,43 @@
         //关闭选择框
         this.region_select = false;
         this.$emit("cRegion", region);
+      },
+      //返回单个值
+      returnSingle(){ //fullrange
+        //如果省都没有选的,return
+        if(!this.isEmptyObj(this.provinceChoose)) return;
+        //判断选到了哪个区域
+        if(this.isEmptyObj(this.provinceChoose) && this.isEmptyObj(this.cityChoose) && this.isEmptyObj(this.areaChoose)){
+          this.rangeSet = 3;
+          //返回数据
+          this.returnRegion();
+          //关闭选择框
+          this.region_select = false;
+          return;
+        }
+        if(this.isEmptyObj(this.provinceChoose) && this.isEmptyObj(this.cityChoose)){
+          this.rangeSet = 2;
+          //返回数据
+          this.returnRegion();
+          //关闭选择框
+          this.region_select = false;
+          return;
+        }
+        if(this.isEmptyObj(this.provinceChoose)){
+          this.rangeSet = 1;
+          //返回数据
+          this.returnRegion();
+          //关闭选择框
+          this.region_select = false;
+          return;
+        }
+        
+      },
+      //判断对象是否为空
+      isEmptyObj(obj){
+        let result = null;
+        Object.keys(obj).length > 0 ? result = true : result = false;
+        return result
       },
       //移除class
       removeClass(lists, classname) {
@@ -749,7 +811,7 @@
                   this.$refs.city_btn[i].classList.add("choosedProvince");
 
                   if (this.cityGet) { //如果设置了市，直接返回
-                    if (!this.multipleCity) {
+                    if (!this.multipleCity && !this.fullrange) {
                       //关闭选择框
                       this.region_select = false;
                       this.returnRegion();
@@ -773,8 +835,7 @@
         this.showResult = false;
         this.c_region = 2;
         this.searchField = '';
-        //关闭选择框
-        this.region_select = false;
+        
         //还是要还原选项
         this.areaList = [];
         this.citys = [];
@@ -786,6 +847,8 @@
         for (let i = 0; i < this.province.length; i++) {
           if (this.province[i].code.substr(0, 2) == code2) {
             this.provinceChoose = this.province[i]; //设置选中的省
+           //需要更新省index
+            this.provinceIndex = i;
             this.removeClass(this.$refs.province_btn, "choosedProvince");
             this.$refs.province_btn[i].classList.add("choosedProvince");
             provinceIndex = i; //记录哪个省
@@ -809,7 +872,12 @@
                         this.$refs.area_btn[i].classList.add("choosedProvince");
                       })
                       //返回数据
-                      this.returnRegion();
+                      if(!this.fullrange){
+                         this.returnRegion();
+                         //关闭选择框
+                        this.region_select = false;
+                      }
+                      
                       break;
                     }
                   }
