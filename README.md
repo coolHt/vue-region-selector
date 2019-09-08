@@ -39,6 +39,7 @@ areaGet|Boolean|true|默认选择到区域，如设置了省或市模式，则�
 cityGet|Boolean|false|选择到城市，如果同时设置了省，则会显示为省模式
 provinceGet|Boolean|false|选择到省份
 multpleCity|Boolean|false|城市多选，如果需要使用此属性,必须启用市模式(设置cityGet = true)，且provinceGet不能为true
+fullrange|Boolean|false|无区域限制选择，在设置的选择范围内选择更上一级的值，例如设置的选择为cityGet,可选择省或市的值，设置的是areaGet,则可选择省或市或区，注意:multpleCity 必须为false
 ####
 
 ####
