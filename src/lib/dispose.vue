@@ -234,7 +234,6 @@
         }.bind(tabs[i]), false);
       }
       //如果一开始就有初始化的对象
-          console.log(this.selected);
       this.initRegion(this.selected);
 
     },
@@ -415,7 +414,6 @@
             isProvince = true;
           } else if (codeData.slice(-4) != '0000' && codeData.slice(-2) == '00') { //是市
             isCity = true;
-            console.log('111');
           } else { //区
             isArea = true;
           }
@@ -429,7 +427,6 @@
                 if(this.fullrange && !this.provinceGet){
                   //获取该位置下的所有城市
                   this.citys = this.domain[i].city;
-                  console.log(this.citys);
                 }
                 //记录省所在的位置
                 this.provinceIndex = i;
@@ -503,11 +500,8 @@
                 })
               }
             } else {
-              console.log(333);
-              console.log(this.citys);
               for (let c = 0; c < this.citys.length; c++) {
                 if (this.citys[c].code == codeData) {
-                  console.log(444);
                   this.cityChoose = this.citys[c];
                   this.$nextTick(() => {
                     //先删一遍class
