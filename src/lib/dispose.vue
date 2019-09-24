@@ -229,6 +229,7 @@
       //切换tab
       for (let i = 0; i < tabs.length; i++) {
         tabs[i].addEventListener('click', function () {
+          if(i == 3) return;
           //切换
           _this.c_region = i;
         }.bind(tabs[i]), false);
@@ -317,7 +318,6 @@
             this.areaChoose = {};
           }
           this.cityChoose = choice;
-          
         }
         const _this = this;
         //选择项 不是已选择项， 选择项加class, 其他项有class的去掉class
@@ -803,6 +803,7 @@
             this.removeClass(this.$refs.province_btn, "choosedProvince");
             this.$refs.province_btn[i].classList.add("choosedProvince");
             provinceIndex = i; //记录哪个省
+            this.provinceIndex = i;
             //知道了是哪个省之后就可以拿市了
             this.citys = this.domain[i].city;
             this.$nextTick(() => {
@@ -854,6 +855,7 @@
             this.removeClass(this.$refs.province_btn, "choosedProvince");
             this.$refs.province_btn[i].classList.add("choosedProvince");
             provinceIndex = i; //记录哪个省
+            this.provinceIndex = i;
             //知道了是哪个省之后就可以拿市了
             this.citys = this.domain[i].city;
             this.$nextTick(() => {

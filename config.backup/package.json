@@ -1,7 +1,7 @@
 {
   "name": "region-selector",
   "description": "region-selector of custom",
-  "version": "3.0.1",
+  "version": "3.2.0",
   "main": "dist/xz-region-selector.js",
   "author": "handsomeBoy <>",
   "license": "MIT",
