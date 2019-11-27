@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <Region :search="search" :cityGet="true" @cRegion="hellos" :multipleCity="true" :selected="selected"></Region>
+    <Region :search="search" :fullrange="true" @cRegion="hellos" :selected="selected"></Region>
   </div>
 </template>
 <script>
@@ -9,10 +9,11 @@ export default {
   data(){
     return {
       search: true,
-      selected: ["330100","330200"],
+      selected: "000000"
       // selected: ["",""],
     }
   },
+  
   methods:{
     hellos(data){
       console.log(data);

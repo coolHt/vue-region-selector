@@ -62,6 +62,9 @@
         <div class="xz_total_domain">
           <!--省选择-->
           <div class="xz_region" v-show="c_region==0" ref="province_choose">
+            <span class="single_city">
+              <i @click="chooseCountry" data-code="000000" ref="province_btn">全国</i>
+            </span>
             <span class="single_city" v-for="(p,index) in province" :key="p.code">
               <i @click="chooseProvince(index,p)" :data-code="p.code" ref="province_btn">{{p.name}}</i>
             </span>
@@ -262,6 +265,20 @@
       }
     },
     methods: {
+      //选择全国
+      chooseCountry(){
+        //关闭选择器
+        this.region_select = false;
+        let region = {
+          province: {
+            code: '000000',
+            name: '全国'
+          }
+        }
+        this.c_value = "全国";
+        //将数据返回出去
+        this.$emit("cRegion", region);
+      },
       //选择省
       chooseProvince(index, choice) {
         if (this.provinceChoose.code == choice.code) { //如果选的是同一个，没必要进行下去了
@@ -407,6 +424,13 @@
           let cityname;
           let citynameArr = []; //多选数组
           let areaname;
+          if(this.selected === "000000"){
+            this.$nextTick(() => {
+              //先删一遍class
+              this.removeClass(this.$refs.province_btn, "choosedProvince");
+              this.c_value = "全国";
+            })
+          }
           //如果是数组
           Array.isArray(this.selected) ? codeData = this.selected[0] : codeData = this.selected;
           //需要判断code 是省的还是市的还是区的
