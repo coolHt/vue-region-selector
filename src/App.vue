@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <Region :search="search" :multipleCity="true" :cityGet="true" @cRegion="hellos" :selected="selected"></Region>
+    <Region :search="search" :fullrange="true" @cRegion="hellos" :selected="selected"></Region>
   </div>
 </template>
 <script>

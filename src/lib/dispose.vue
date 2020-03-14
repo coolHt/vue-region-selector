@@ -377,8 +377,10 @@
           //////
           //选区切换
           setTimeout(() => {
-            //差别
-            if (_this.cityGet) { //已经过滤掉省，所以只需要判断有没有设置市
+            //
+            if(choice.code.substr(0, 3) == '429'){
+              
+            }else if (_this.cityGet) { //已经过滤掉省，所以只需要判断有没有设置市
               //返回所选的省/市/区
               if (!_this.multipleCity) { //如果不是多选
                 if(!this.fullrange){
@@ -818,6 +820,7 @@
         this.citys = [];
         this.showResult = false;
         this.searchField = '';
+                  console.log(code);
         const code2 = code.substr(0, 2); //通过这个找省
         const code4 = code.substr(0, 4); //通过这个找市
         let provinceIndex;
@@ -844,6 +847,7 @@
                       this.returnRegion();
                     }
                   }
+                  
                   //筛选区/县 (如果没有设置省和城市才需要)
                   if ((!this.provinceGet) && (!this.cityGet)) {
                     this.domain[provinceIndex].area.forEach((item) => {

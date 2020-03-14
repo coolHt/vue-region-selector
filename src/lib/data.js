@@ -17,7 +17,7 @@ saveDatas.forEach((region) => {
   //分别筛选出省/市/区的数据
   if (region.code.slice(-4) == '0000') { //省
     province.push(region);
-  } else if (region.code.slice(-4) != '0000' && region.code.slice(-2) == '00') { //获取市的数据
+  } else if ((region.code.slice(-4) != '0000' && region.code.slice(-2) == '00') || region.code.substr(0, 3) == '429') { //获取市的数据
     //自治州太长了，去掉自治州
     if (region.name.indexOf('自治州') != -1){
       region.name = region.name.replace('自治州','');
